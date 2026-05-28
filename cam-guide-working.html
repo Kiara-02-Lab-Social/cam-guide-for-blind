@@ -860,10 +860,13 @@ function analyzeFace(landmarks, videoWidth, videoHeight) {
     checks.vertDirKey = 'lowerScreen';
   }
 
-  // 3. Head tilt / angle — compare eye heights
-  const eyeDY = rightEye.y - leftEye.y;
-  const eyeDX = rightEye.x - leftEye.x;
-  const tiltAngle = Math.abs(Math.atan2(eyeDY, eyeDX) * 180 / Math.PI);
+  // 3. Head tilt / angle — measure how far the face's vertical axis (forehead
+  // ↔ chin) leans from straight-up. The old eye-height comparison misfires for
+  // users whose eyes don't sit at the same level (e.g. some single-eye users,
+  // ptosis, microphthalmia). The face center line stays straight regardless.
+  const tiltDx = chin.x - forehead.x;
+  const tiltDy = chin.y - forehead.y;
+  const tiltAngle = Math.abs(Math.atan2(tiltDx, tiltDy) * 180 / Math.PI);
   if (tiltAngle < 8) {
     checks.angle = 'ok';
   } else {
