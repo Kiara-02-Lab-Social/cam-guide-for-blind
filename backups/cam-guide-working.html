@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="pageTitle">Cam Guide — Webcam Position Assistant</title>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green: #1D9E75;
+  --green-light: #E1F5EE;
+  --green-dark: #085041;
+  --green-mid: #9FE1CB;
+  --amber: #EF9F27;
+  --amber-light: #FAEEDA;
+  --amber-dark: #633806;
+  --amber-mid: #FAC775;
+  --red: #E24B4A;
+  --red-light: #FCEBEB;
+  --red-dark: #501313;
+  --red-mid: #F7C1C1;
+  --gray-100: #f8f8f6;
+  --gray-200: #f0efeb;
+  --gray-300: #e0ddd4;
+  --gray-500: #888;
+  --gray-700: #444;
+  --gray-900: #1a1a1a;
+  --white: #fff;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--gray-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+.app {
+  position: relative;
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  min-height: 560px;
+  border: 0.5px solid var(--gray-300);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--white);
+  max-width: 820px;
+  width: 100%;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+/* LANGUAGE TOGGLE */
+.lang-toggle {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 4px;
+  background: var(--white);
+  border: 0.5px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.lang-btn {
+  background: none;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-500);
+  cursor: pointer;
+  font-family: var(--font);
+  letter-spacing: 0.04em;
+  transition: background 0.15s, color 0.15s;
+  min-width: 30px;
+}
+
+.lang-btn:hover { color: var(--gray-900); }
+.lang-btn.active { background: var(--green); color: var(--white); }
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--gray-100);
+  border-right: 0.5px solid var(--gray-300);
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.logo {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 32px; height: 32px;
+  border-radius: 9px;
+  background: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-icon svg { width: 18px; height: 18px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--gray-500);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.nav-item:hover { background: var(--gray-200); color: var(--gray-700); }
+
+.nav-item.active {
+  background: var(--white);
+  color: var(--gray-900);
+  font-weight: 500;
+  border: 0.5px solid var(--gray-300);
+}
+
+.nav-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.nav-dot.green { background: var(--green); }
+.nav-dot.muted { background: var(--gray-300); }
+
+.streak-box {
+  margin-top: auto;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--gray-300);
+  background: var(--white);
+}
+
+.streak-label {
+  font-size: 10px; color: var(--gray-500);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.streak-num {
+  font-size: 26px; font-weight: 600;
+  color: var(--gray-900);
+  line-height: 1;
+}
+
+.streak-sub { font-size: 11px; color: var(--gray-500); margin-top: 4px; }
+
+/* MAIN */
+.main { padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+
+.section-label {
+  font-size: 10px; font-weight: 600;
+  color: var(--green);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+
+.page-title { font-size: 20px; font-weight: 600; color: var(--gray-900); margin-top: 3px; }
+.page-sub { font-size: 13px; color: var(--gray-500); margin-top: 4px; line-height: 1.5; }
+
+/* CAM AREA */
+.cam-area {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #111;
+  height: 210px;
+}
+
+#videoEl {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: block;
+  opacity: 0.85;
+}
+
+#overlayCanvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  transform: scaleX(-1);
+  pointer-events: none;
+}
+
+.grid-overlay {
+  position: absolute; inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  pointer-events: none;
+}
+
+.grid-cell { border-right: 0.5px solid rgba(255,255,255,0.07); border-bottom: 0.5px solid rgba(255,255,255,0.07); }
+
+.status-pill {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 11px; font-weight: 500;
+  padding: 4px 11px;
+  border-radius: 20px;
+  transition: background 0.3s, color 0.3s;
+  white-space: nowrap;
+}
+
+.status-pill.searching { background: rgba(0,0,0,0.5); color: rgba(255,255,255,0.6); }
+.status-pill.good { background: var(--green-dark); color: var(--green-mid); }
+.status-pill.warn { background: #633806cc; color: var(--amber-mid); }
+.status-pill.error { background: var(--red-dark); color: var(--red-mid); }
+
+.cam-label {
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; color: rgba(255,255,255,0.45);
+  background: rgba(0,0,0,0.3);
+  padding: 4px 12px; border-radius: 20px;
+  white-space: nowrap;
+}
+
+.start-btn {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px;
+  background: rgba(0,0,0,0.7);
+  cursor: pointer;
+  border: none;
+  color: white;
+}
+
+.start-btn-inner {
+  background: var(--green);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: var(--radius-sm);
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+.start-btn-sub { font-size: 12px; color: rgba(255,255,255,0.5); }
+
+/* FEEDBACK */
+.feedback-card {
+  border: 0.5px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: border-color 0.3s, background 0.3s;
+  min-height: 76px;
+}
+
+.feedback-card.good { border-color: var(--green); background: var(--green-light); }
+.feedback-card.warn { border-color: #854F0B; background: var(--amber-light); }
+.feedback-card.error { border-color: var(--red); background: var(--red-light); }
+.feedback-card.idle { border-color: var(--gray-300); background: var(--gray-100); }
+
+.feedback-icon {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px; font-weight: 600;
+}
+.feedback-icon.good { background: var(--green-mid); color: var(--green-dark); }
+.feedback-icon.warn { background: var(--amber-mid); color: var(--amber-dark); }
+.feedback-icon.error { background: var(--red-mid); color: var(--red-dark); }
+.feedback-icon.idle { background: var(--gray-200); color: var(--gray-500); }
+
+.feedback-title { font-size: 13px; font-weight: 600; }
+.feedback-title.good { color: var(--green-dark); }
+.feedback-title.warn { color: var(--amber-dark); }
+.feedback-title.error { color: var(--red-dark); }
+.feedback-title.idle { color: var(--gray-500); }
+
+.feedback-desc { font-size: 12px; margin-top: 3px; line-height: 1.5; }
+.feedback-desc.good { color: #0F6E56; }
+.feedback-desc.warn { color: #854F0B; }
+.feedback-desc.error { color: #A32D2D; }
+.feedback-desc.idle { color: var(--gray-500); }
+
+.audio-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; margin-top: 8px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.audio-badge.visible { opacity: 1; }
+.audio-wave { display: flex; align-items: center; gap: 2px; }
+.bar { width: 2px; border-radius: 1px; }
+.bar.good { background: var(--green); }
+.bar.warn { background: var(--amber); }
+
+/* CHECKS GRID */
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.check-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 13px;
+  border-radius: var(--radius-sm);
+  border: 0.5px solid var(--gray-300);
+  background: var(--gray-100);
+  font-size: 12px; color: var(--gray-700);
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.check-item.ok { border-color: var(--green); background: var(--green-light); color: #085041; }
+.check-item.warn { border-color: #854F0B; background: var(--amber-light); color: #633806; }
+.check-item.err { border-color: var(--red); background: var(--red-light); color: var(--red-dark); }
+
+.check-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.3s;
+}
+.check-dot.ok { background: var(--green); }
+.check-dot.warn { background: var(--amber); }
+.check-dot.err { background: var(--red); }
+.check-dot.idle { background: var(--gray-300); }
+
+/* MUTE BUTTON */
+.mute-btn {
+  background: none; border: 0.5px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+  padding: 7px 14px;
+  font-size: 12px; color: var(--gray-500);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: background 0.15s;
+  align-self: flex-start;
+}
+.mute-btn:hover { background: var(--gray-200); }
+.mute-btn.muted { background: var(--red-light); border-color: var(--red); color: var(--red-dark); }
+
+/* FACE BOX CANVAS DRAWING — done in JS */
+
+/* ─── RESPONSIVE ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  body {
+    padding: 12px;
+    align-items: flex-start;
+  }
+  .app {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    border-radius: var(--radius-md);
+  }
+  .sidebar {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-right: none;
+    border-bottom: 0.5px solid var(--gray-300);
+  }
+  .sidebar .logo { margin-bottom: 0; flex-shrink: 0; }
+  .sidebar .nav-item { display: none; }
+  .streak-box {
+    margin-top: 0;
+    margin-left: auto;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .streak-label { display: none; }
+  .streak-num { font-size: 18px; }
+  .streak-sub { margin-top: 0; font-size: 11px; }
+  .main { padding: 16px; gap: 14px; }
+  .page-title { font-size: 18px; }
+  .cam-area {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+  .lang-toggle {
+    top: 10px;
+    right: 10px;
+  }
+  .checks { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 380px) {
+  .checks { grid-template-columns: 1fr; }
+  .streak-box { display: none; }
+}
+</style>
+</head>
+<body>
+
+<h1 class="sr-only" data-i18n="srHeading">Cam Guide — Webcam position assistant for blind users on video calls</h1>
+
+<div class="app" role="main">
+  <div class="lang-toggle" role="group" aria-label="Language">
+    <button class="lang-btn active" data-lang="en" aria-label="English">EN</button>
+    <button class="lang-btn" data-lang="ja" aria-label="日本語">JP</button>
+  </div>
+
+  <nav class="sidebar" aria-label="Main navigation">
+    <div class="logo">
+      <div class="logo-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="6" r="3" stroke="white" stroke-width="1.5"/>
+          <path d="M3 14c0-2.761 2.239-5 5-5s5 2.239 5 5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span data-i18n="brand">Cam Guide</span>
+    </div>
+    <button class="nav-item active" aria-current="page">
+      <span class="nav-dot green" aria-hidden="true"></span>
+      <span data-i18n="navLive">Live check</span>
+    </button>
+    <button class="nav-item">
+      <span class="nav-dot muted" aria-hidden="true"></span>
+      <span data-i18n="navHistory">History</span>
+    </button>
+    <button class="nav-item">
+      <span class="nav-dot muted" aria-hidden="true"></span>
+      <span data-i18n="navSettings">Settings</span>
+    </button>
+    <div class="streak-box" aria-label="Good sessions streak">
+      <div class="streak-label" data-i18n="streakLabel">Good sessions</div>
+      <div class="streak-num" id="streakNum">0</div>
+      <div class="streak-sub" id="streakSub" data-i18n="streakStart">Start a session</div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div>
+      <div class="section-label" aria-hidden="true" data-i18n="sectionLive">Live check</div>
+      <h2 class="page-title" data-i18n="pageHeading">How's your camera looking?</h2>
+      <p class="page-sub" data-i18n="pageSub">Audio feedback plays automatically. No screen needed.</p>
+    </div>
+
+    <div class="cam-area">
+      <video id="videoEl" autoplay muted playsinline aria-label="Webcam feed"></video>
+      <canvas id="overlayCanvas" aria-hidden="true"></canvas>
+      <div class="grid-overlay" aria-hidden="true">
+        <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+        <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+        <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+      </div>
+      <div class="status-pill searching" id="statusPill" aria-live="polite" data-i18n="statusWaiting">Waiting...</div>
+      <div class="cam-label" aria-hidden="true" data-i18n="camLabel">Live webcam</div>
+      <div class="start-btn" id="startBtn">
+        <div class="start-btn-inner" role="button" tabindex="0" onclick="startCamera()" onkeydown="if(event.key==='Enter')startCamera()" data-i18n="startBtn">
+          Start camera
+        </div>
+        <div class="start-btn-sub" data-i18n="startBtnSub">Webcam access required</div>
+      </div>
+    </div>
+
+    <div class="feedback-card idle" id="feedbackCard" role="alert" aria-live="assertive">
+      <div class="feedback-icon idle" id="feedbackIcon">?</div>
+      <div style="flex:1">
+        <div class="feedback-title idle" id="feedbackTitle" data-i18n="fbWaiting">Waiting for camera...</div>
+        <div class="feedback-desc idle" id="feedbackDesc" data-i18n="fbWaitingDesc">Click "Start camera" above to begin.</div>
+        <div class="audio-badge" id="audioBadge" aria-label="Audio feedback active">
+          <div class="audio-wave" aria-hidden="true">
+            <div class="bar" id="audioBar" style="height:6px"></div>
+            <div class="bar" id="audioBar2" style="height:10px"></div>
+            <div class="bar" id="audioBar3" style="height:7px"></div>
+            <div class="bar" id="audioBar4" style="height:12px"></div>
+            <div class="bar" id="audioBar5" style="height:5px"></div>
+          </div>
+          <span id="audioLabel" data-i18n="audioLabel">Speaking via audio</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="checks" role="list" aria-label="Position checks">
+      <div class="check-item" role="listitem" id="checkFace">
+        <div class="check-dot idle" id="dotFace" aria-hidden="true"></div>
+        <span data-i18n="checkFace">Face in frame</span>
+      </div>
+      <div class="check-item" role="listitem" id="checkCenter">
+        <div class="check-dot idle" id="dotCenter" aria-hidden="true"></div>
+        <span data-i18n="checkCenter">Centered left-right</span>
+      </div>
+      <div class="check-item" role="listitem" id="checkAngle">
+        <div class="check-dot idle" id="dotAngle" aria-hidden="true"></div>
+        <span data-i18n="checkAngle">Head angle</span>
+      </div>
+      <div class="check-item" role="listitem" id="checkLight">
+        <div class="check-dot idle" id="dotLight" aria-hidden="true"></div>
+        <span data-i18n="checkLight">Lighting</span>
+      </div>
+    </div>
+
+    <button class="mute-btn" id="muteBtn" onclick="toggleMute()" aria-pressed="false" data-i18n="audioOn">
+      Audio feedback: ON
+    </button>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let muted = false;
+let lastSpoken = '';
+let lastSpokenTime = 0;
+const SPEAK_DEBOUNCE_MS = 4000;
+let sessionGood = 0;
+let goodSeconds = 0;
+let goodTimer = null;
+let cameraStarted = false;
+let faceMesh = null;
+let mpCamera = null;
+let currentLang = 'en';
+
+// ─── I18N ────────────────────────────────────────────────────────────────────
+const i18n = {
+  en: {
+    pageTitle: "Cam Guide — Webcam Position Assistant",
+    srHeading: "Cam Guide — Webcam position assistant for blind users on video calls",
+    brand: "Cam Guide",
+    navLive: "Live check",
+    navHistory: "History",
+    navSettings: "Settings",
+    streakLabel: "Good sessions",
+    streakStart: "Start a session",
+    streakMinute: "good minute this session",
+    streakMinutes: "good minutes this session",
+    sectionLive: "Live check",
+    pageHeading: "How's your camera looking?",
+    pageSub: "Audio feedback plays automatically. No screen needed.",
+    camLabel: "Live webcam",
+    startBtn: "Start camera",
+    startBtnSub: "Webcam access required",
+    audioLabel: "Speaking via audio",
+    checkFace: "Face in frame",
+    checkCenter: "Centered left-right",
+    checkAngle: "Head angle",
+    checkLight: "Lighting",
+    audioOn: "Audio feedback: ON",
+    audioOff: "Audio feedback: OFF",
+    // status pills
+    statusWaiting: "Waiting...",
+    statusStarting: "Starting...",
+    statusFinding: "Finding face...",
+    statusAllGood: "All good",
+    statusLighting: "Lighting issue",
+    statusDistance: "Distance",
+    statusOffCenter: "Off center",
+    statusHeadPos: "Head position",
+    statusHeadTilt: "Head tilt",
+    statusCamErr: "Camera error",
+    statusNoFace: "No face found",
+    // feedback titles
+    fbWaiting: "Waiting for camera...",
+    fbWaitingDesc: 'Click "Start camera" above to begin.',
+    fbGoodTitle: "You look great!",
+    fbGoodDesc: "Face centered, head level, lighting good. You're ready for your call.",
+    fbNoFaceTitle: "Face not detected",
+    fbNoFaceDesc: "Position yourself in front of the camera. Make sure the room is lit.",
+    fbCamDeniedTitle: "Camera access denied",
+    fbCamDeniedDesc: "Please allow webcam access in your browser and reload the page.",
+    // direction messages
+    moveRight: "Move slightly right",
+    moveLeft: "Move slightly left",
+    raiseScreen: "Look slightly higher or raise your screen",
+    lowerScreen: "Lower your screen or sit back a little",
+    straightenHead: "Straighten your head — it's tilted",
+    moveBack: "Move back — you're too close",
+    moveCloser: "Move closer — you're too far",
+    tooDark: "Too dark — turn on a light facing you",
+    tooBright: "Too bright — move away from bright background",
+    // descriptions
+    descLighting: "Lighting affects how you appear on video calls.",
+    descDistance: "Adjust your distance from the camera.",
+    descCenter: "Shift your position so your face is centered.",
+    descVert: "Adjust your screen or seat height.",
+    descAngle: "Keep your head level for a professional look.",
+    // TTS
+    ttsCamStarted: "Camera started. Position yourself in front of the camera.",
+    ttsCamDenied: "Camera access denied. Please allow webcam access and reload.",
+    ttsAudioOn: "Audio feedback on",
+    ttsAllGood: "You look great, you are ready for your call",
+    ttsNoFace: "Face not detected. Please position yourself in front of the camera."
+  },
+  ja: {
+    pageTitle: "カムガイド — ウェブカメラ位置アシスタント",
+    srHeading: "カムガイド — ビデオ通話で視覚障害者向けのウェブカメラ位置アシスタント",
+    brand: "カムガイド",
+    navLive: "ライブチェック",
+    navHistory: "履歴",
+    navSettings: "設定",
+    streakLabel: "良好セッション",
+    streakStart: "セッションを開始",
+    streakMinute: "良好な分（今回のセッション）",
+    streakMinutes: "良好な分（今回のセッション）",
+    sectionLive: "ライブチェック",
+    pageHeading: "カメラの映りはどうですか？",
+    pageSub: "音声フィードバックが自動再生されます。画面を見る必要はありません。",
+    camLabel: "ライブカメラ",
+    startBtn: "カメラを開始",
+    startBtnSub: "ウェブカメラへのアクセスが必要です",
+    audioLabel: "音声で案内中",
+    checkFace: "顔がフレームに入っている",
+    checkCenter: "左右の中央",
+    checkAngle: "頭の角度",
+    checkLight: "明るさ",
+    audioOn: "音声フィードバック: オン",
+    audioOff: "音声フィードバック: オフ",
+    // status pills
+    statusWaiting: "待機中...",
+    statusStarting: "起動中...",
+    statusFinding: "顔を検出中...",
+    statusAllGood: "すべて良好",
+    statusLighting: "明るさの問題",
+    statusDistance: "距離",
+    statusOffCenter: "中央から外れています",
+    statusHeadPos: "頭の位置",
+    statusHeadTilt: "頭の傾き",
+    statusCamErr: "カメラエラー",
+    statusNoFace: "顔が見つかりません",
+    // feedback titles
+    fbWaiting: "カメラ起動を待っています...",
+    fbWaitingDesc: '上の「カメラを開始」をクリックしてください。',
+    fbGoodTitle: "バッチリです！",
+    fbGoodDesc: "顔が中央・頭がまっすぐ・明るさも良好。通話の準備が整いました。",
+    fbNoFaceTitle: "顔が検出できません",
+    fbNoFaceDesc: "カメラの前に位置し、部屋が明るいか確認してください。",
+    fbCamDeniedTitle: "カメラへのアクセスが拒否されました",
+    fbCamDeniedDesc: "ブラウザでウェブカメラへのアクセスを許可し、ページを再読み込みしてください。",
+    // direction messages
+    moveRight: "少し右に動いてください",
+    moveLeft: "少し左に動いてください",
+    raiseScreen: "少し上を見るか、画面を上げてください",
+    lowerScreen: "画面を下げるか、少し後ろに座ってください",
+    straightenHead: "頭がまっすぐではありません。傾きを直してください",
+    moveBack: "少し後ろに下がってください。近すぎます",
+    moveCloser: "少し前に出てください。遠すぎます",
+    tooDark: "暗すぎます。正面に光をあててください",
+    tooBright: "明るすぎます。明るい背景から離れてください",
+    // descriptions
+    descLighting: "明るさはビデオ通話での見え方に影響します。",
+    descDistance: "カメラとの距離を調整してください。",
+    descCenter: "顔が中央に来るように位置を調整してください。",
+    descVert: "画面の高さや座る高さを調整してください。",
+    descAngle: "通話用に頭をまっすぐ保ってください。",
+    // TTS
+    ttsCamStarted: "カメラを起動しました。カメラの前に位置してください。",
+    ttsCamDenied: "カメラへのアクセスが拒否されました。アクセスを許可してから再読み込みしてください。",
+    ttsAudioOn: "音声フィードバックをオンにしました",
+    ttsAllGood: "バッチリです。通話の準備が整いました",
+    ttsNoFace: "顔が検出できません。カメラの前に位置してください。"
+  }
+};
+
+function t(key) {
+  return (i18n[currentLang] && i18n[currentLang][key]) || i18n.en[key] || key;
+}
+
+function setLanguage(lang) {
+  if (!i18n[lang]) return;
+  currentLang = lang;
+  document.documentElement.lang = lang;
+
+  // toggle button states
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+
+  // static text replacement
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const txt = t(key);
+    if (txt) el.textContent = txt;
+  });
+
+  // page title
+  document.title = t('pageTitle');
+
+  // mute button (state-dependent)
+  const muteBtn = document.getElementById('muteBtn');
+  if (muteBtn) muteBtn.textContent = muted ? t('audioOff') : t('audioOn');
+
+  // audio label fallback (only when not currently announcing something)
+  const audioLabel = document.getElementById('audioLabel');
+  if (audioLabel && !document.getElementById('audioBadge').classList.contains('visible')) {
+    audioLabel.textContent = t('audioLabel');
+  }
+
+  // streak sub when idle
+  const streakNum = document.getElementById('streakNum');
+  const streakSub = document.getElementById('streakSub');
+  if (streakNum && streakSub) {
+    if (sessionGood === 0) {
+      streakSub.textContent = t('streakStart');
+    } else {
+      streakSub.textContent = sessionGood + ' ' + (sessionGood === 1 ? t('streakMinute') : t('streakMinutes'));
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
+  });
+  // default: browser locale → ja if Japanese, else en
+  const browserLang = (navigator.language || 'en').toLowerCase();
+  setLanguage(browserLang.startsWith('ja') ? 'ja' : 'en');
+});
+
+// ─── SPEAK ───────────────────────────────────────────────────────────────────
+function speak(text) {
+  if (muted) return;
+  const now = Date.now();
+  if (text === lastSpoken && now - lastSpokenTime < SPEAK_DEBOUNCE_MS) return;
+  lastSpoken = text;
+  lastSpokenTime = now;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = currentLang === 'ja' ? 'ja-JP' : 'en-US';
+  utt.rate = 1.0;
+  utt.pitch = 1.0;
+  utt.volume = 1.0;
+  window.speechSynthesis.speak(utt);
+  showAudioBadge(text);
+}
+
+function showAudioBadge(text) {
+  const badge = document.getElementById('audioBadge');
+  const label = document.getElementById('audioLabel');
+  label.textContent = text;
+  badge.classList.add('visible');
+  setTimeout(() => badge.classList.remove('visible'), 4000);
+}
+
+function toggleMute() {
+  muted = !muted;
+  const btn = document.getElementById('muteBtn');
+  btn.textContent = muted ? t('audioOff') : t('audioOn');
+  btn.classList.toggle('muted', muted);
+  btn.setAttribute('aria-pressed', muted);
+  if (!muted) speak(t('ttsAudioOn'));
+}
+
+// ─── UI UPDATE ────────────────────────────────────────────────────────────────
+// setStatus / setFeedback accept i18n KEYS, so language switching naturally re-renders.
+function setStatus(type, pillKey) {
+  const pill = document.getElementById('statusPill');
+  pill.className = 'status-pill ' + type;
+  pill.dataset.i18n = pillKey;
+  pill.textContent = t(pillKey);
+}
+
+function setFeedback(type, icon, titleKey, descKey) {
+  const card = document.getElementById('feedbackCard');
+  const iconEl = document.getElementById('feedbackIcon');
+  const titleEl = document.getElementById('feedbackTitle');
+  const descEl = document.getElementById('feedbackDesc');
+  card.className = 'feedback-card ' + type;
+  iconEl.className = 'feedback-icon ' + type;
+  iconEl.textContent = icon;
+  titleEl.className = 'feedback-title ' + type;
+  titleEl.dataset.i18n = titleKey;
+  titleEl.textContent = t(titleKey);
+  descEl.className = 'feedback-desc ' + type;
+  descEl.dataset.i18n = descKey;
+  descEl.textContent = t(descKey);
+  // update audio wave bar color
+  ['audioBar','audioBar2','audioBar3','audioBar4','audioBar5'].forEach(id => {
+    const el = document.getElementById(id);
+    el.className = 'bar ' + (type === 'good' ? 'good' : 'warn');
+  });
+}
+
+function setCheck(name, state) {
+  const check = document.getElementById('check' + name);
+  const dot = document.getElementById('dot' + name);
+  check.className = 'check-item ' + state;
+  dot.className = 'check-dot ' + state;
+}
+
+// ─── FACE ANALYSIS ───────────────────────────────────────────────────────────
+function analyzeFace(landmarks, videoWidth, videoHeight) {
+  // Key landmark indices for FaceMesh 468-point model
+  // Nose tip: 1, Left eye outer: 33, Right eye outer: 263
+  // Chin: 152, Forehead: 10
+  const nose = landmarks[1];
+  const leftEye = landmarks[33];
+  const rightEye = landmarks[263];
+  const chin = landmarks[152];
+  const forehead = landmarks[10];
+
+  // Face bounding box (approximate)
+  const xs = landmarks.map(l => l.x);
+  const ys = landmarks.map(l => l.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs);
+  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const faceW = maxX - minX;
+  const faceH = maxY - minY;
+
+  // Face center
+  const faceCX = (minX + maxX) / 2;
+  const faceCY = (minY + maxY) / 2;
+
+  // Results
+  const checks = {};
+
+  // 1. Centered left-right (nose X should be near 0.5, mirrored)
+  const centerX = 1 - faceCX; // mirror compensation
+  const offsetX = centerX - 0.5;
+  if (Math.abs(offsetX) < 0.12) {
+    checks.center = 'ok';
+  } else if (offsetX < 0) {
+    checks.center = 'warn';
+    checks.centerDirKey = 'moveRight';
+  } else {
+    checks.center = 'warn';
+    checks.centerDirKey = 'moveLeft';
+  }
+
+  // 2. Head vertical position (face center Y)
+  const offsetY = faceCY - 0.42; // ideal: face center at 42% from top
+  if (Math.abs(offsetY) < 0.12) {
+    checks.vertPos = 'ok';
+  } else if (offsetY > 0) {
+    checks.vertPos = 'warn';
+    checks.vertDirKey = 'raiseScreen';
+  } else {
+    checks.vertPos = 'warn';
+    checks.vertDirKey = 'lowerScreen';
+  }
+
+  // 3. Head tilt / angle — measure how far the face's vertical axis (forehead
+  // ↔ chin) leans from straight-up. The old eye-height comparison misfires for
+  // users whose eyes don't sit at the same level (e.g. some single-eye users,
+  // ptosis, microphthalmia). The face center line stays straight regardless.
+  const tiltDx = chin.x - forehead.x;
+  const tiltDy = chin.y - forehead.y;
+  const tiltAngle = Math.abs(Math.atan2(tiltDx, tiltDy) * 180 / Math.PI);
+  if (tiltAngle < 8) {
+    checks.angle = 'ok';
+  } else {
+    checks.angle = 'warn';
+    checks.angleDirKey = 'straightenHead';
+  }
+
+  // 4. Distance (face size as proxy)
+  if (faceW > 0.15 && faceW < 0.65) {
+    checks.distance = 'ok';
+  } else if (faceW >= 0.65) {
+    checks.distance = 'warn';
+    checks.distDirKey = 'moveBack';
+  } else {
+    checks.distance = 'warn';
+    checks.distDirKey = 'moveCloser';
+  }
+
+  // Return face bbox for drawing
+  checks.bbox = { minX, minY, maxX, maxY };
+  checks.faceCX = 1 - faceCX; // mirrored
+  checks.faceCY;
+
+  return checks;
+}
+
+// ─── CANVAS DRAWING ───────────────────────────────────────────────────────────
+function drawOverlay(canvas, checks, videoWidth, videoHeight) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!checks.bbox) return;
+
+  const { minX, minY, maxX, maxY } = checks.bbox;
+  const allGood = checks.center === 'ok' && checks.vertPos === 'ok' && checks.angle === 'ok' && checks.distance === 'ok';
+  const color = allGood ? '#1D9E75' : '#EF9F27';
+
+  const x = minX * canvas.width;
+  const y = minY * canvas.height;
+  const w = (maxX - minX) * canvas.width;
+  const h = (maxY - minY) * canvas.height;
+  const pad = 12;
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(x - pad, y - pad, w + pad * 2, h + pad * 2, 8);
+  ctx.stroke();
+
+  // Corner accents
+  const cs = 14;
+  ctx.lineWidth = 2.5;
+  [[x - pad, y - pad], [x + w + pad, y - pad], [x - pad, y + h + pad], [x + w + pad, y + h + pad]].forEach(([cx, cy], i) => {
+    const sx = i % 2 === 0 ? 1 : -1;
+    const sy = i < 2 ? 1 : -1;
+    ctx.beginPath();
+    ctx.moveTo(cx + sx * cs, cy);
+    ctx.lineTo(cx, cy);
+    ctx.lineTo(cx, cy + sy * cs);
+    ctx.stroke();
+  });
+
+  // Center cross
+  const frameCX = canvas.width / 2;
+  const frameCY = canvas.height / 2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(frameCX - 10, frameCY); ctx.lineTo(frameCX + 10, frameCY); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(frameCX, frameCY - 10); ctx.lineTo(frameCX, frameCY + 10); ctx.stroke();
+}
+
+// ─── BRIGHTNESS CHECK ─────────────────────────────────────────────────────────
+function checkLighting(video) {
+  try {
+    const tmpCanvas = document.createElement('canvas');
+    tmpCanvas.width = 64; tmpCanvas.height = 48;
+    const ctx = tmpCanvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, 64, 48);
+    const data = ctx.getImageData(0, 0, 64, 48).data;
+    let sum = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      sum += 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+    }
+    const avg = sum / (data.length / 4);
+    if (avg > 40 && avg < 220) return 'ok';
+    if (avg <= 40) return 'dark';
+    return 'bright';
+  } catch(e) {
+    return 'ok';
+  }
+}
+
+// ─── MAIN FEEDBACK LOGIC ──────────────────────────────────────────────────────
+let lastLightCheck = 0;
+let lightState = 'ok';
+
+function updateUI(checks, video) {
+  // Lighting check (every 2s to avoid perf hit)
+  const now = Date.now();
+  if (now - lastLightCheck > 2000) {
+    lightState = checkLighting(video);
+    lastLightCheck = now;
+  }
+
+  const faceOk = checks.center === 'ok' && checks.vertPos === 'ok' && checks.angle === 'ok' && checks.distance === 'ok';
+  const lightOk = lightState === 'ok';
+
+  // Set individual checks
+  setCheck('Face', 'ok');
+  setCheck('Center', checks.center === 'ok' ? 'ok' : 'warn');
+  setCheck('Angle', checks.angle === 'ok' ? 'ok' : 'warn');
+  setCheck('Light', lightOk ? 'ok' : 'warn');
+
+  // Determine primary issue
+  if (!lightOk) {
+    const msgKey = lightState === 'dark' ? 'tooDark' : 'tooBright';
+    setFeedback('warn', '☀', msgKey, 'descLighting');
+    setStatus('warn', 'statusLighting');
+    speak(t(msgKey));
+    return;
+  }
+
+  if (checks.distance === 'warn') {
+    setFeedback('warn', '⟷', checks.distDirKey, 'descDistance');
+    setStatus('warn', 'statusDistance');
+    speak(t(checks.distDirKey));
+    return;
+  }
+
+  if (checks.center === 'warn') {
+    setFeedback('warn', '←→', checks.centerDirKey, 'descCenter');
+    setStatus('warn', 'statusOffCenter');
+    speak(t(checks.centerDirKey));
+    return;
+  }
+
+  if (checks.vertPos === 'warn') {
+    setFeedback('warn', '↕', checks.vertDirKey, 'descVert');
+    setStatus('warn', 'statusHeadPos');
+    speak(t(checks.vertDirKey));
+    return;
+  }
+
+  if (checks.angle === 'warn') {
+    setFeedback('warn', '↗', checks.angleDirKey, 'descAngle');
+    setStatus('warn', 'statusHeadTilt');
+    speak(t(checks.angleDirKey));
+    return;
+  }
+
+  // All good
+  setFeedback('good', '✓', 'fbGoodTitle', 'fbGoodDesc');
+  setStatus('good', 'statusAllGood');
+  if (lastSpoken !== t('ttsAllGood')) {
+    speak(t('ttsAllGood'));
+  }
+
+  // Count good seconds
+  if (!goodTimer) {
+    goodTimer = setInterval(() => {
+      goodSeconds++;
+      if (goodSeconds % 30 === 0) {
+        sessionGood++;
+        document.getElementById('streakNum').textContent = sessionGood;
+        document.getElementById('streakSub').textContent =
+          sessionGood + ' ' + (sessionGood === 1 ? t('streakMinute') : t('streakMinutes'));
+      }
+    }, 1000);
+  }
+}
+
+// ─── NO FACE ──────────────────────────────────────────────────────────────────
+let noFaceFrames = 0;
+
+function onNoFace() {
+  noFaceFrames++;
+  if (noFaceFrames < 10) return; // debounce flicker
+
+  if (goodTimer) { clearInterval(goodTimer); goodTimer = null; }
+
+  setCheck('Face', 'err');
+  setCheck('Center', 'idle');
+  setCheck('Angle', 'idle');
+  setCheck('Light', 'idle');
+  setFeedback('error', '!', 'fbNoFaceTitle', 'fbNoFaceDesc');
+  setStatus('error', 'statusNoFace');
+  speak(t('ttsNoFace'));
+}
+
+// ─── MEDIAPIPE SETUP ─────────────────────────────────────────────────────────
+async function startCamera() {
+  if (cameraStarted) return;
+  cameraStarted = true;
+
+  document.getElementById('startBtn').style.display = 'none';
+  setStatus('searching', 'statusStarting');
+  // iOS Safari sandboxes speechSynthesis unless the first speak() call happens
+  // inside the user gesture, before any `await`. Speak now to unlock audio.
+  speak(t('ttsCamStarted'));
+
+  const video = document.getElementById('videoEl');
+  const canvas = document.getElementById('overlayCanvas');
+
+  // Size canvas to match cam area
+  const camArea = canvas.parentElement;
+  canvas.width = camArea.offsetWidth;
+  canvas.height = camArea.offsetHeight;
+
+  faceMesh = new FaceMesh({
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+  });
+
+  faceMesh.setOptions({
+    maxNumFaces: 1,
+    refineLandmarks: true,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  });
+
+  faceMesh.onResults((results) => {
+    if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+      noFaceFrames = 0;
+      if (goodTimer === null && document.getElementById('feedbackTitle').dataset.i18n === 'fbGoodTitle') {
+        // will restart timer on next good frame
+      }
+      const landmarks = results.multiFaceLandmarks[0];
+      const checks = analyzeFace(landmarks, video.videoWidth, video.videoHeight);
+      drawOverlay(canvas, checks, video.videoWidth, video.videoHeight);
+      updateUI(checks, video);
+    } else {
+      if (goodTimer) { clearInterval(goodTimer); goodTimer = null; }
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      onNoFace();
+    }
+  });
+
+  mpCamera = new Camera(video, {
+    onFrame: async () => {
+      await faceMesh.send({ image: video });
+    },
+    width: 640,
+    height: 480
+  });
+
+  try {
+    await mpCamera.start();
+    setStatus('searching', 'statusFinding');
+    speak(t('ttsCamStarted'));
+  } catch(e) {
+    setStatus('error', 'statusCamErr');
+    setFeedback('error', '!', 'fbCamDeniedTitle', 'fbCamDeniedDesc');
+    speak(t('ttsCamDenied'));
+    cameraStarted = false;
+    document.getElementById('startBtn').style.display = 'flex';
+  }
+}
+</script>
+</body>
+</html>
