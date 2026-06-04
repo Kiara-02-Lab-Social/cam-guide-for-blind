@@ -283,7 +283,7 @@ export default function SmileCoachView() {
           <div className="cam-card">
             <div className="cam-header">{t('cameraView')}</div>
             <div className="cam-area" style={{ height: '240px' }}>
-              <video ref={videoRef} id="videoEl" autoPlay muted playsInline style={{ display: cameraActive ? 'block' : 'none' }}></video>
+              <video ref={videoRef} id="videoEl" autoPlay muted playsInline style={{ display: cameraActive ? 'block' : 'none' }} aria-hidden="true"></video>
               <canvas ref={canvasRef} id="overlayCanvas" style={{ display: cameraActive ? 'block' : 'none' }}></canvas>
               
               {!cameraActive && !isStarting && (

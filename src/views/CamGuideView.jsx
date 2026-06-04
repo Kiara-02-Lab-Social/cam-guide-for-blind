@@ -256,7 +256,7 @@ export default function CamGuideView({ onStreakChange }) {
       </div>
 
       <div className="cam-area">
-        <video ref={videoRef} id="videoEl" autoPlay muted playsInline aria-label="Webcam feed"></video>
+        <video ref={videoRef} id="videoEl" autoPlay muted playsInline aria-hidden="true"></video>
         <canvas ref={canvasRef} id="overlayCanvas" aria-hidden="true"></canvas>
         <div className="grid-overlay" aria-hidden="true">
           {Array.from({ length: 9 }).map((_, i) => (
