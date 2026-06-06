@@ -940,3 +940,51 @@ body {
   .stats-row { grid-template-columns: 1fr; }
   .stat-box { padding: 12px; }
 }
+
+/* ─── SETTINGS SLIDERS CUSTOM DESIGN ────────────────────────────────────────── */
+.setting-slider-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 200px;
+}
+
+.settings-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--gray-300);
+  outline: none;
+  transition: background 0.15s;
+}
+
+.settings-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--green);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  transition: transform 0.1s;
+}
+
+.settings-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.slider-value-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green-dark);
+  background: var(--green-light);
+  padding: 4px 8px;
+  border-radius: 12px;
+  min-width: 45px;
+  text-align: center;
+  display: inline-block;
+}
+

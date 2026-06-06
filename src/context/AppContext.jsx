@@ -18,6 +18,35 @@ export function AppProvider({ children }) {
   const [speakingText, setSpeakingText] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
 
+  // Customizable TTS Parameters
+  const [ttsRate, setTtsRateState] = useState(() => {
+    const saved = localStorage.getItem('ttsRate');
+    return saved !== null ? parseFloat(saved) : 1.0;
+  });
+  const [ttsPitch, setTtsPitchState] = useState(() => {
+    const saved = localStorage.getItem('ttsPitch');
+    return saved !== null ? parseFloat(saved) : 1.0;
+  });
+  const [ttsVolume, setTtsVolumeState] = useState(() => {
+    const saved = localStorage.getItem('ttsVolume');
+    return saved !== null ? parseFloat(saved) : 1.0;
+  });
+
+  const setTtsRate = (val) => {
+    setTtsRateState(val);
+    localStorage.setItem('ttsRate', val.toString());
+  };
+
+  const setTtsPitch = (val) => {
+    setTtsPitchState(val);
+    localStorage.setItem('ttsPitch', val.toString());
+  };
+
+  const setTtsVolume = (val) => {
+    setTtsVolumeState(val);
+    localStorage.setItem('ttsVolume', val.toString());
+  };
+
   const lastSpokenRef = useRef({});
   const silenceTimeoutRef = useRef(null);
 
@@ -62,9 +91,9 @@ export function AppProvider({ children }) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = language === 'ja' ? 'ja-JP' : 'en-US';
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
+      utterance.rate = ttsRate;
+      utterance.pitch = ttsPitch;
+      utterance.volume = ttsVolume;
 
       utterance.onstart = () => {
         setIsSpeaking(true);
@@ -115,6 +144,9 @@ export function AppProvider({ children }) {
           const msg = translations[language]?.ttsAudioOn || 'Audio feedback on';
           const utterance = new SpeechSynthesisUtterance(msg);
           utterance.lang = language === 'ja' ? 'ja-JP' : 'en-US';
+          utterance.rate = ttsRate;
+          utterance.pitch = ttsPitch;
+          utterance.volume = ttsVolume;
           window.speechSynthesis.speak(utterance);
         }
       } else {
@@ -150,6 +182,12 @@ export function AppProvider({ children }) {
         stopSpeaking,
         speakingText,
         isSpeaking,
+        ttsRate,
+        setTtsRate,
+        ttsPitch,
+        setTtsPitch,
+        ttsVolume,
+        setTtsVolume,
         t
       }}
     >

@@ -13,6 +13,12 @@ export const translations = {
     navHistory: "History",
     navSettings: "Settings",
     navSmile: "Smile Coach",
+    ttsSpeed: "Voice Speed",
+    ttsSpeedDesc: "Adjust how fast the voice instructions are spoken.",
+    ttsPitch: "Voice Pitch",
+    ttsPitchDesc: "Adjust the pitch (highness/lowness) of the voice.",
+    ttsVolume: "Voice Volume",
+    ttsVolumeDesc: "Adjust the volume level of the voice feedback.",
     
     // Cam Guide Specific
     sectionLive: "Live check",
@@ -179,6 +185,12 @@ export const translations = {
     navHistory: "履歴",
     navSettings: "設定",
     navSmile: "スマイルコーチ",
+    ttsSpeed: "音声速度",
+    ttsSpeedDesc: "音声案内の読み上げ速度を調整します。",
+    ttsPitch: "音声の高さ",
+    ttsPitchDesc: "音声のピッチ（高低）を調整します。",
+    ttsVolume: "音声の音量",
+    ttsVolumeDesc: "音声案内の音量レベルを調整します。",
     
     // Cam Guide Specific
     sectionLive: "ライブチェック",

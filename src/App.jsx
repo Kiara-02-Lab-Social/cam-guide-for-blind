@@ -7,7 +7,20 @@ import SmileCoachView from './views/SmileCoachView';
 import './App.css';
 
 function MainAppLayout() {
-  const { activeTab, language, setLanguage, muted, toggleMute, t } = useApp();
+  const { 
+    activeTab, 
+    language, 
+    setLanguage, 
+    muted, 
+    toggleMute, 
+    ttsRate, 
+    setTtsRate, 
+    ttsPitch, 
+    setTtsPitch, 
+    ttsVolume, 
+    setTtsVolume, 
+    t 
+  } = useApp();
   const [streakNum, setStreakNum] = useState(0);
   const [streakSub, setStreakSub] = useState('');
 
@@ -79,6 +92,66 @@ function MainAppLayout() {
                 >
                   {muted ? t('audioOff') : t('audioOn')}
                 </button>
+              </div>
+
+              <div className="setting-row">
+                <div>
+                  <div className="setting-label-text">{t('ttsSpeed')}</div>
+                  <div className="setting-desc-text">{t('ttsSpeedDesc')}</div>
+                </div>
+                <div className="setting-slider-group">
+                  <input 
+                    type="range" 
+                    min="0.5" 
+                    max="2.0" 
+                    step="0.1" 
+                    value={ttsRate} 
+                    onChange={(e) => setTtsRate(parseFloat(e.target.value))}
+                    aria-label={t('ttsSpeed')}
+                    className="settings-slider"
+                  />
+                  <span className="slider-value-badge">{ttsRate.toFixed(1)}x</span>
+                </div>
+              </div>
+
+              <div className="setting-row">
+                <div>
+                  <div className="setting-label-text">{t('ttsPitch')}</div>
+                  <div className="setting-desc-text">{t('ttsPitchDesc')}</div>
+                </div>
+                <div className="setting-slider-group">
+                  <input 
+                    type="range" 
+                    min="0.5" 
+                    max="2.0" 
+                    step="0.1" 
+                    value={ttsPitch} 
+                    onChange={(e) => setTtsPitch(parseFloat(e.target.value))}
+                    aria-label={t('ttsPitch')}
+                    className="settings-slider"
+                  />
+                  <span className="slider-value-badge">{ttsPitch.toFixed(1)}</span>
+                </div>
+              </div>
+
+              <div className="setting-row">
+                <div>
+                  <div className="setting-label-text">{t('ttsVolume')}</div>
+                  <div className="setting-desc-text">{t('ttsVolumeDesc')}</div>
+                </div>
+                <div className="setting-slider-group">
+                  <input 
+                    type="range" 
+                    min="0.0" 
+                    max="1.0" 
+                    step="0.1" 
+                    value={ttsVolume} 
+                    onChange={(e) => setTtsVolume(parseFloat(e.target.value))}
+                    aria-label={t('ttsVolume')}
+                    className="settings-slider"
+                  />
+                  <span className="slider-value-badge">{Math.round(ttsVolume * 100)}%</span>
+                </div>
               </div>
             </div>
           </main>
