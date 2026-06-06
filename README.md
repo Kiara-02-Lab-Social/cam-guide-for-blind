@@ -1,130 +1,130 @@
 # Cam Guide
 
-**Webcam position assistant for blind and low-vision users on video calls.**
+**Webcam position assistant and Smile Coach for blind and low-vision users on video calls.**
 
-Tells you — via audio — whether your face is centered, well-lit, and properly framed, so you can join video calls confidently without needing to see the screen.
+Tells you — via audio — whether your face is centered, well-lit, and properly framed, and helps you practice your most natural, confident smile. Join video calls and present yourself confidently without needing to see the screen.
+
+> [!IMPORTANT]
+> **Compatibility Note**: This application is specifically designed and optimized **only for Apple devices and browsers running on Apple devices** (macOS, iOS, and iPadOS). 
 
 ![Cam Guide UI](cam-guide-ui.svg)
 
 ---
 
-## How it works
-
-Open one HTML file in your browser. That's it. No install, no server, no account.
-
-The app uses your webcam to detect your face and speaks feedback out loud through your speakers or headphones. It tells you exactly what to adjust — "Move slightly right", "You're too close", "Look a little higher" — and goes quiet when everything looks good.
-
----
-
-## Quick start
-
-1. Download `cam-guide-working.html`
-2. Open it in **Chrome** or **Edge** (recommended)
-3. Click **Start camera**
-4. Allow webcam access when the browser asks
-5. Listen to the audio feedback and adjust your position
-
-When you hear **"You look great, you are ready for your call"** — you're good to go.
+## What's New in this Web App
+This application has been upgraded from a single static page to a complete offline-first React application with multiple features:
+- **Cam Guide (Live Check)**: Real-time alignment checks (horizontal/vertical framing, distance, tilt, and lighting check) with spoken instructions.
+- **Smile Coach**: Guides you to perfect a confident smile by analyzing your mouth shape and eye engagements with real-time feedback scores and audio encouragements.
+- **Customizable TTS Controls**: Custom sliders on the Settings page to adjust voice speed (rate), pitch, and volume parameters to your liking (saved automatically to your browser).
+- **Smart Screen Reader Mode**: Smartly disables `aria-live` regions when the built-in TTS voice is active to prevent double-audio overlap, while enabling screen reader fallback announcements when muted.
 
 ---
 
-## What it checks
+## How to Run the Project (For Beginners)
 
-| Check | What it detects | Audio example |
+If you have never run a web project before, follow these step-by-step instructions. We will walk you through cloning the code, installing the required tools, and running the application on your computer.
+
+### Step 1: Clone the Repository
+First, you need to download a copy of the project files to your computer using Git.
+
+1. Open your terminal or command prompt (see **Step 3** below for instructions on how to open it on your operating system).
+2. Navigate to the folder where you want to download the project (for example, your Projects or Desktop directory):
+   ```bash
+   cd Desktop
+   ```
+3. Type the following command to download the code:
+   ```bash
+   git clone https://github.com/Kiara-02-Lab-Social/cam-guide-for-blind.git
+   ```
+4. Press `Enter`. This will create a folder named `cam-guide-for-blind` on your desktop containing all the files.
+
+---
+
+### Step 2: Install Node.js
+To run this project, you need a free software tool called **Node.js** (which automatically includes **npm**).
+
+1. Go to the official download page: [nodejs.org](https://nodejs.org/)
+2. Download the **LTS (Long Term Support)** version recommended for macOS.
+3. Open the downloaded installer file and follow the standard installation instructions on your screen (you can leave all options as default).
+
+---
+
+### Step 3: Open your Terminal
+You will run the project by typing simple commands into a text terminal.
+
+*   **Mac (macOS)**: Press `Cmd + Space` to open Spotlight search, type `Terminal`, and press `Enter`.
+
+---
+
+### Step 4: Navigate to the Project Directory
+In your terminal, you need to point the command line to the folder where you cloned the project.
+
+1. Type the following command:
+   ```bash
+   cd cam-guide-for-blind
+   ```
+2. Press `Enter`.
+
+---
+
+### Step 5: Install Dependencies
+The project uses external helpers (like React and MediaPipe) which need to be downloaded.
+
+1. In the terminal, type the following command:
+   ```bash
+   npm install
+   ```
+2. Press `Enter`.
+3. Wait a few moments. You will see progress bars on the screen. Once finished, it will return to the command prompt. You only need to do this step **once** when setting up the project for the first time.
+
+---
+
+### Step 6: Start the Project
+Now you are ready to run the local server.
+
+1. Type the following command in the terminal:
+   ```bash
+   npm run dev
+   ```
+2. Press `Enter`.
+3. The terminal will display a message showing that the local server is running, looking like this:
+   ```text
+     VITE vX.X.X  ready in XXX ms
+
+     ➜  Local:   http://localhost:5173/
+   ```
+4. Click the URL `http://localhost:5173/` in Safari, Chrome, or any browser running on your Apple device.
+
+To stop the server at any time, return to the terminal and press `Ctrl + C`.
+
+---
+
+## Core Features & Logic
+
+### 1. Cam Guide Alignment Checks
+
+| Check | What it detects | Audio guidance example |
 |---|---|---|
-| Face in frame | Whether your face is visible at all | "Face not detected. Position yourself in front of the camera." |
-| Left-right centering | Whether your face is centered horizontally | "Move slightly right" |
-| Vertical position | Whether your face is too high or too low | "Look slightly higher or raise your screen" |
-| Head tilt | Whether your head is level | "Straighten your head — it's tilted" |
-| Distance | Whether you're too close or too far | "Move back — you're too close" |
-| Lighting | Whether the room is too dark or too bright | "Too dark — turn on a light facing you" |
+| **Face in frame** | If your face is visible on screen | "Face not detected. Position yourself in front of the camera." |
+| **Centering** | If you are centered horizontally | "Move slightly right" or "Move slightly left" |
+| **Vertical position** | If you are seated too high or low | "Look slightly higher or raise your screen" |
+| **Head tilt** | If your head is level | "Straighten your head — it's tilted" |
+| **Distance** | If you are too close or too far | "Move back — you're too close" |
+| **Lighting** | If the room is dark or excessively bright | "Too dark — turn on a light facing you" |
+
+### 2. Smile Coach Analysis
+- **Mouth Score**: Measures mouth width and lip curvature.
+- **Eye Score**: Measures eye narrowing/engagement (Duchenne marker) to ensure a genuine smile.
+- **Session Stats**: Tracks practice session time and the total seconds of high-quality smile held.
 
 ---
 
-## Controls
-
-| Control | What it does |
-|---|---|
-| Start camera | Begins webcam + audio feedback |
-| Audio feedback: ON/OFF | Mutes or unmutes spoken alerts |
-
-Audio repeats at most once every 4 seconds per message — no spam.
-
----
-
-## Accessibility notes
-
-- **Primary output is audio** — no screen reading required
-- All key elements have ARIA labels and `aria-live` regions
-- Works with screen readers (NVDA, VoiceOver, JAWS)
-- Mute button has `aria-pressed` state
-- Camera preview is intentionally low-opacity — the visual is for sighted observers, not the user
-
----
-
-## Browser compatibility
-
-| Browser | Status |
-|---|---|
-| Chrome | ✅ Recommended |
-| Edge | ✅ Supported |
-| Firefox | ⚠️ MediaPipe issues — not recommended |
-| Safari | ⚠️ Not tested |
-
-Requires: webcam access permission, speakers or headphones.
-
----
-
-## How it's built
-
-Everything runs in the browser. No data leaves your device.
-
-| Component | Technology |
-|---|---|
-| Face detection | [MediaPipe FaceMesh](https://google.github.io/mediapipe/solutions/face_mesh) — 468 facial landmarks, WASM, runs locally |
-| Audio feedback | [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis) — `SpeechSynthesisUtterance` |
-| Lighting check | Canvas pixel brightness sampling (every 2 seconds) |
-| No backend | Fully offline after first load |
-
-### Detection logic
-
-- **Centering**: nose X position vs frame center (threshold ±12%)
-- **Vertical position**: face center Y vs ideal 42% from top
-- **Head tilt**: eye-line angle via `Math.atan2` on left/right eye landmarks
-- **Distance**: face bounding box width as proxy (ideal: 15%–65% of frame width)
-- **Lighting**: average pixel luminance across a 64×48 canvas sample (ideal: 40–220)
-
----
-
-## Use case
-
-Designed for **blind and low-vision freelancers** joining video calls with sighted clients. Getting camera position right is difficult without visual feedback — this app solves that with audio alone.
-
-Also useful for anyone who wants a quick "am I on camera correctly?" check before a call.
-
----
-
-## Files
-
-| File | Description |
-|---|---|
-| `cam-guide-working.html` | The working app — open this in Chrome |
-| `cam-guide-mockup.html` | Static UI mockup (no webcam) |
-| `cam-guide-ui.svg` | UI preview image (shown above) |
-| `README.md` | This file |
-
----
-
-## Privacy
-
-- No video is recorded or transmitted
-- All processing runs locally in your browser (WASM)
-- Camera access is only used while the page is open
+## Privacy & Offline Processing
+- **100% Privacy**: All video and camera processing is executed locally in your browser using WASM (WebAssembly). No camera streams or images are ever uploaded to a server.
+- **Offline First**: The application works completely offline after the initial page loads.
 
 ---
 
 ## Credits
-
-Built with [MediaPipe](https://google.github.io/mediapipe/) by Google and the [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API).
-
-Inspired by [Posture Sensei](https://github.com/Kiara-03-Lab/posture-detection) — a gamified posture monitor built by Kiara Lab.
+- Built using [MediaPipe FaceMesh](https://google.github.io/mediapipe/solutions/face_mesh) and the native browser [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API).
+- Inspired by *Posture Sensei* by Kiara Lab.
