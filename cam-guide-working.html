@@ -426,11 +426,11 @@ body {
 
 <h1 class="sr-only" data-i18n="srHeading">Cam Guide — Webcam position assistant for blind users on video calls</h1>
 
-<div class="app" role="main">
-  <div class="lang-toggle" role="group" aria-label="Language">
+<div class="app">
+  <header class="lang-toggle" role="group" aria-label="Language">
     <button class="lang-btn active" data-lang="en" aria-label="English">EN</button>
     <button class="lang-btn" data-lang="ja" aria-label="日本語">JP</button>
-  </div>
+  </header>
 
   <nav class="sidebar" aria-label="Main navigation">
     <div class="logo">
@@ -461,7 +461,7 @@ body {
     </div>
   </nav>
 
-  <div class="main">
+  <main class="main" id="main-content">
     <div>
       <div class="section-label" aria-hidden="true" data-i18n="sectionLive">Live check</div>
       <h2 class="page-title" data-i18n="pageHeading">How's your camera looking?</h2>
@@ -526,7 +526,7 @@ body {
     <button class="mute-btn" id="muteBtn" onclick="toggleMute()" aria-pressed="false" data-i18n="audioOn">
       Audio feedback: ON
     </button>
-  </div>
+  </main>
 </div>
 
 <script>

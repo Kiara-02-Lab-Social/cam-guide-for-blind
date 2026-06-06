@@ -24,7 +24,7 @@ function MainAppLayout() {
         return <SmileCoachView />;
       case 'history':
         return (
-          <div className="main mock-view">
+          <main id="main-content" className="main mock-view">
             <h2 className="page-title">{t('navHistory')}</h2>
             <p className="page-sub">Your video call camera framing metrics and statistics are recorded offline.</p>
             <div className="mock-card">
@@ -37,11 +37,11 @@ function MainAppLayout() {
               </div>
               <p className="mock-desc">Practice daily to build muscle memory and maintain a high framing score!</p>
             </div>
-          </div>
+          </main>
         );
       case 'settings':
         return (
-          <div className="main settings-view">
+          <main id="main-content" className="main settings-view">
             <h2 className="page-title">{t('navSettings')}</h2>
             <p className="page-sub">Configure user settings, localization preferences, and voice guidance alerts.</p>
             
@@ -81,7 +81,7 @@ function MainAppLayout() {
                 </button>
               </div>
             </div>
-          </div>
+          </main>
         );
       default:
         return <CamGuideView onStreakChange={handleStreakChange} />;
@@ -89,12 +89,12 @@ function MainAppLayout() {
   };
 
   return (
-    <div className="app" role="main" id="main-content">
+    <div className="app">
       <Skipper />
       <div id="liveRegion" role="status" aria-live="assertive" aria-atomic="false" className="sr-only"></div>
 
       {/* TOP FLOATING LOCALIZATION AND VOLUME CONTROLLER */}
-      <div className="top-actions-bar">
+      <header className="top-actions-bar">
         <div className="lang-toggle" role="group" aria-label="Language">
           <button 
             className={`lang-btn ${language === 'en' ? 'active' : ''}`} 
@@ -120,7 +120,7 @@ function MainAppLayout() {
         >
           {muted ? '🔇' : '🔊'}
         </button>
-      </div>
+      </header>
 
       <Sidebar streakNum={streakNum} streakSub={streakSub} />
       

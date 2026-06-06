@@ -6,6 +6,7 @@ import { drawMouthOverlay } from '../utils/drawing';
 import { encouragements } from '../translations';
 import FeedbackCard from '../components/FeedbackCard';
 import TipsSection from '../components/TipsSection';
+import Header from '../components/Header';
 
 export default function SmileCoachView() {
   const { t, speak, activeTab, language } = useApp();
@@ -267,85 +268,82 @@ export default function SmileCoachView() {
 
   return (
     <div className="main">
-      <div>
-        <div className="section-label" aria-hidden="true">
-          {t('navSmile')}
-        </div>
+      <header className="header">
+        <Header sectionLabelKey="navSmile" />
+      </header>
+      <main id="main-content">
         <h2 className="page-title">{t('smileTitle')}</h2>
         <p className="page-sub">{t('smileSubtitle')}</p>
-        <p className="page-sub" style={{ marginTop: '2px', fontSize: '12px' }}>
-          {t('smileDescription')}
-        </p>
-      </div>
+        <p className="page-sub">{t('smileDescription')}</p>
+        <div className="main-grid-layout">
+          <div className="camera-container-box">
+            <div className="cam-card">
+              <div className="cam-header">{t('cameraView')}</div>
+              <div className="cam-area" style={{ height: '240px' }}>
+                <video ref={videoRef} id="videoEl" autoPlay muted playsInline style={{ display: cameraActive ? 'block' : 'none' }} aria-hidden="true" />
+                <canvas ref={canvasRef} id="overlayCanvas" style={{ display: cameraActive ? 'block' : 'none' }} aria-hidden="true" />
 
-      <div className="main-grid-layout">
-        <div className="camera-container-box">
-          <div className="cam-card">
-            <div className="cam-header">{t('cameraView')}</div>
-            <div className="cam-area" style={{ height: '240px' }}>
-              <video ref={videoRef} id="videoEl" autoPlay muted playsInline style={{ display: cameraActive ? 'block' : 'none' }} aria-hidden="true"></video>
-              <canvas ref={canvasRef} id="overlayCanvas" style={{ display: cameraActive ? 'block' : 'none' }}></canvas>
-              
-              {!cameraActive && !isStarting && (
-                <div className="start-overlay" onClick={handleStartClick}>
-                  <button className="start-button">{t('startCamera')}</button>
-                  <div className="start-text">{t('startHint')}</div>
-                </div>
+                {!cameraActive && !isStarting && (
+                  <div className="start-overlay" onClick={handleStartClick}>
+                    <button className="start-button">{t('startCamera')}</button>
+                    <div className="start-text">{t('startHint')}</div>
+                  </div>
+                )}
+                {isStarting && (
+                  <div className="start-overlay">
+                    <div className="start-text">{t('cameraStarting')}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="controls" style={{ marginTop: '12px' }}>
+              {cameraActive && (
+                <button className="danger" onClick={handleStopClick}>
+                  {t('stop')}
+                </button>
               )}
-              {isStarting && (
-                <div className="start-overlay">
-                  <div className="start-text">{t('cameraStarting')}</div>
+            </div>
+          </div>
+
+          <div className="feedback-container-box">
+            <FeedbackCard
+              type={cardClass}
+              icon={cardIcon}
+              title={getCardText(cardTitleKey)}
+              desc={getCardText(cardDescKey)}
+              tip={cardTipKey ? t(cardTipKey) : null}
+            />
+
+            <div className="stats-row" style={{ marginTop: '16px' }}>
+              <div className="stat-box">
+                <div className="stat-value">
+                  {smileAnalysis && smileAnalysis.mouthScore !== null ? `${smileAnalysis.mouthScore}%` : '—'}
                 </div>
-              )}
+                <div className="stat-label">{t('mouthScore')}</div>
+              </div>
+              <div className="stat-box">
+                <div className="stat-value">
+                  {smileAnalysis && smileAnalysis.eyeScore !== null ? `${smileAnalysis.eyeScore}%` : '—'}
+                </div>
+                <div className="stat-label">{t('eyeScore')}</div>
+              </div>
+              <div className="stat-box">
+                <div className="stat-value">{goodSeconds}s</div>
+                <div className="stat-label">{t('goodSecs')}</div>
+              </div>
+              <div className="stat-box" style={{ gridColumn: 'span 3' }}>
+                <div className="stat-value" style={{ fontSize: '18px', padding: '4px 0' }}>
+                  {sessionTime}s
+                </div>
+                <div className="stat-label">{t('sessionTime')}</div>
+              </div>
             </div>
           </div>
-          
-          <div className="controls" style={{ marginTop: '12px' }}>
-            {cameraActive && (
-              <button className="danger" onClick={handleStopClick}>
-                {t('stop')}
-              </button>
-            )}
-          </div>
+
+          <TipsSection />
         </div>
-
-        <div className="feedback-container-box">
-          <FeedbackCard
-            type={cardClass}
-            icon={cardIcon}
-            title={getCardText(cardTitleKey)}
-            desc={getCardText(cardDescKey)}
-            tip={cardTipKey ? t(cardTipKey) : null}
-          />
-
-          <div className="stats-row" style={{ marginTop: '16px' }}>
-            <div className="stat-box">
-              <div className="stat-value">
-                {smileAnalysis && smileAnalysis.mouthScore !== null ? `${smileAnalysis.mouthScore}%` : '—'}
-              </div>
-              <div className="stat-label">{t('mouthScore')}</div>
-            </div>
-            <div className="stat-box">
-              <div className="stat-value">
-                {smileAnalysis && smileAnalysis.eyeScore !== null ? `${smileAnalysis.eyeScore}%` : '—'}
-              </div>
-              <div className="stat-label">{t('eyeScore')}</div>
-            </div>
-            <div className="stat-box">
-              <div className="stat-value">{goodSeconds}s</div>
-              <div className="stat-label">{t('goodSecs')}</div>
-            </div>
-            <div className="stat-box" style={{ gridColumn: 'span 3' }}>
-              <div className="stat-value" style={{ fontSize: '18px', padding: '4px 0' }}>
-                {sessionTime}s
-              </div>
-              <div className="stat-label">{t('sessionTime')}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <TipsSection />
+      </main>
     </div>
   );
 }

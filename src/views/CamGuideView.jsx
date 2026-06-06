@@ -5,6 +5,7 @@ import { analyzeFace } from '../utils/faceAnalysis';
 import { checkLighting } from '../utils/lighting';
 import { drawPositionOverlay } from '../utils/drawing';
 import FeedbackCard from '../components/FeedbackCard';
+import Header from '../components/Header';
 
 export default function CamGuideView({ onStreakChange }) {
   const { t, speak, activeTab } = useApp();
@@ -246,62 +247,66 @@ export default function CamGuideView({ onStreakChange }) {
   };
 
   return (
-    <div className="main">
-      <div>
-        <div className="section-label" aria-hidden="true">
-          {t('sectionLive')}
-        </div>
-        <h2 className="page-title">{t('pageHeading')}</h2>
-        <p className="page-sub">{t('pageSub')}</p>
-      </div>
+    <div className="cam-guide-view">
+      <header className="header">
+        <Header sectionLabelKey="sectionLive" />
+      </header>
+      <div id="main">
+        <main id="main-content">
+          <h2 className="page-title">{t('pageHeading')}</h2>
+          <p className="page-sub">{t('pageSub')}</p>
+          <div className="cam-area">
+            <video ref={videoRef} id="videoEl" autoPlay muted playsInline aria-hidden="true" />
+            <canvas ref={canvasRef} id="overlayCanvas" aria-hidden="true" />
+            <div className="grid-overlay" aria-hidden="true">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div className="grid-cell" key={i} />
+              ))}
+            </div>
 
-      <div className="cam-area">
-        <video ref={videoRef} id="videoEl" autoPlay muted playsInline aria-hidden="true"></video>
-        <canvas ref={canvasRef} id="overlayCanvas" aria-hidden="true"></canvas>
-        <div className="grid-overlay" aria-hidden="true">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <div className="grid-cell" key={i}></div>
-          ))}
-        </div>
+            {!cameraActive && !isStarting && (
+              <div className="start-btn" onClick={handleStartClick}>
+                <button className="start-btn-inner" tabIndex={0}>{t('startBtn')}</button>
+                <div className="start-btn-sub">{t('startBtnSub')}</div>
+              </div>
+            )}
+            {isStarting && (
+              <div className="start-btn">
+                <div className="start-btn-sub">{t('statusStarting')}</div>
+              </div>
+            )}
 
-        <div className={`status-pill ${statusClass}`} aria-live="polite">
-          {t(statusKey)}
-        </div>
-        <div className="cam-label" aria-hidden="true">
-          {t('camLabel')}
-        </div>
+            <div className={`status-pill ${statusClass}`} aria-live="polite">
+              {t(statusKey)}
+            </div>
+            <div className="cam-label" aria-hidden="true">
+              {t('camLabel')}
+            </div>
+          </div>
 
-        {!cameraActive && !isStarting && (
-          <div className="start-btn" onClick={handleStartClick}>
-            <button className="start-btn-inner" tabIndex={0}>
-              {t('startBtn')}
+          <FeedbackCard
+            type={cardClass}
+            icon={cardIcon}
+            title={t(cardTitleKey)}
+            desc={t(cardDescKey)}
+          />
+
+          <div className="checks" role="list" aria-label="Position checks">
+            {['Face', 'Center', 'Angle', 'Light'].map((name) => (
+              <div className={`check-item ${getDotStatus(name)}`} role="listitem" key={name}>
+                <div className={`check-dot ${getDotStatus(name)}`} aria-hidden="true" />
+                <span>{t(`check${name}`)}</span>
+              </div>
+            ))}
+          </div>
+
+          {cameraActive && (
+            <button className="mute-btn danger" onClick={stopCamera}>
+              {t('stop')}
             </button>
-            <div className="start-btn-sub">{t('startBtnSub')}</div>
-          </div>
-        )}
+          )}
+        </main>
       </div>
-
-      <FeedbackCard
-        type={cardClass}
-        icon={cardIcon}
-        title={t(cardTitleKey)}
-        desc={t(cardDescKey)}
-      />
-
-      <div className="checks" role="list" aria-label="Position checks">
-        {['Face', 'Center', 'Angle', 'Light'].map((name) => (
-          <div className={`check-item ${getDotStatus(name)}`} role="listitem" key={name}>
-            <div className={`check-dot ${getDotStatus(name)}`} aria-hidden="true"></div>
-            <span>{t(`check${name}`)}</span>
-          </div>
-        ))}
-      </div>
-
-      {cameraActive && (
-        <button className="mute-btn danger" onClick={stopCamera}>
-          {t('stop')}
-        </button>
-      )}
     </div>
   );
 }
