@@ -476,7 +476,7 @@ body {
         <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
         <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
       </div>
-      <div class="status-pill searching" id="statusPill" aria-live="polite" data-i18n="statusWaiting">Waiting...</div>
+      <div class="status-pill searching" id="statusPill" aria-live="off" data-i18n="statusWaiting">Waiting...</div>
       <div class="cam-label" aria-hidden="true" data-i18n="camLabel">Live webcam</div>
       <div class="start-btn" id="startBtn">
         <div class="start-btn-inner" role="button" tabindex="0" onclick="startCamera()" onkeydown="if(event.key==='Enter')startCamera()" data-i18n="startBtn">
@@ -486,7 +486,7 @@ body {
       </div>
     </div>
 
-    <div class="feedback-card idle" id="feedbackCard" role="alert" aria-live="assertive">
+    <div class="feedback-card idle" id="feedbackCard" role="alert" aria-live="off">
       <div class="feedback-icon idle" id="feedbackIcon">?</div>
       <div style="flex:1">
         <div class="feedback-title idle" id="feedbackTitle" data-i18n="fbWaiting">Waiting for camera...</div>
@@ -729,6 +729,13 @@ function setLanguage(lang) {
   }
 }
 
+function updateAriaLiveRegions() {
+  const statusPill = document.getElementById('statusPill');
+  const feedbackCard = document.getElementById('feedbackCard');
+  if (statusPill) statusPill.setAttribute('aria-live', muted ? 'polite' : 'off');
+  if (feedbackCard) feedbackCard.setAttribute('aria-live', muted ? 'assertive' : 'off');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
@@ -736,6 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // default: browser locale → ja if Japanese, else en
   const browserLang = (navigator.language || 'en').toLowerCase();
   setLanguage(browserLang.startsWith('ja') ? 'ja' : 'en');
+  updateAriaLiveRegions();
 });
 
 // ─── SPEAK ───────────────────────────────────────────────────────────────────
@@ -769,6 +777,7 @@ function toggleMute() {
   btn.textContent = muted ? t('audioOff') : t('audioOn');
   btn.classList.toggle('muted', muted);
   btn.setAttribute('aria-pressed', muted);
+  updateAriaLiveRegions();
   if (!muted) speak(t('ttsAudioOn'));
 }
 

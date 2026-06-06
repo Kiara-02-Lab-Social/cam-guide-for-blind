@@ -8,7 +8,7 @@ import FeedbackCard from '../components/FeedbackCard';
 import Header from '../components/Header';
 
 export default function CamGuideView({ onStreakChange }) {
-  const { t, speak, activeTab } = useApp();
+  const { t, speak, activeTab, muted } = useApp();
 
   // Local state
   const [faceChecks, setFaceChecks] = useState(null);
@@ -276,7 +276,7 @@ export default function CamGuideView({ onStreakChange }) {
               </div>
             )}
 
-            <div className={`status-pill ${statusClass}`} aria-live="polite">
+            <div className={`status-pill ${statusClass}`} aria-live={muted ? "polite" : "off"}>
               {t(statusKey)}
             </div>
             <div className="cam-label" aria-hidden="true">

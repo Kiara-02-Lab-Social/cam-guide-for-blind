@@ -2,10 +2,10 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 
 export default function FeedbackCard({ type = 'idle', icon = '?', title = '', desc = '' }) {
-  const { isSpeaking, speakingText, t } = useApp();
+  const { isSpeaking, speakingText, muted, t } = useApp();
 
   return (
-    <div className={`feedback-card ${type}`} role="alert" aria-live="assertive">
+    <div className={`feedback-card ${type}`} role="alert" aria-live={muted ? "assertive" : "off"}>
       <div className={`feedback-icon ${type}`} aria-hidden="true">
         {icon}
       </div>
