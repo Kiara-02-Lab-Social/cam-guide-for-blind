@@ -21,15 +21,18 @@ export function AppProvider({ children }) {
   // Customizable TTS Parameters
   const [ttsRate, setTtsRateState] = useState(() => {
     const saved = localStorage.getItem('ttsRate');
-    return saved !== null ? parseFloat(saved) : 1.0;
+    const parsed = parseFloat(saved);
+    return (saved !== null && !isNaN(parsed)) ? parsed : 1.0;
   });
   const [ttsPitch, setTtsPitchState] = useState(() => {
     const saved = localStorage.getItem('ttsPitch');
-    return saved !== null ? parseFloat(saved) : 1.0;
+    const parsed = parseFloat(saved);
+    return (saved !== null && !isNaN(parsed)) ? parsed : 1.0;
   });
   const [ttsVolume, setTtsVolumeState] = useState(() => {
     const saved = localStorage.getItem('ttsVolume');
-    return saved !== null ? parseFloat(saved) : 1.0;
+    const parsed = parseFloat(saved);
+    return (saved !== null && !isNaN(parsed)) ? parsed : 1.0;
   });
 
   const setTtsRate = (val) => {

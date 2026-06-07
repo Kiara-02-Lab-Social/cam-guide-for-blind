@@ -794,6 +794,38 @@ body {
   background: var(--gray-100);
 }
 
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-group {
+  border: 1.5px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  padding: 12px 24px 20px 24px;
+  background: var(--gray-100);
+  margin: 0;
+  transition: var(--transition);
+}
+
+.settings-group:hover, .settings-group:focus-within {
+  border-color: var(--green-mid);
+  box-shadow: 0 4px 12px rgba(29, 158, 117, 0.06);
+}
+
+.settings-legend {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green-dark);
+  background: var(--green-light);
+  padding: 4px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--green-mid);
+}
+
 .mock-chart-placeholder {
   display: flex;
   align-items: flex-end;
@@ -974,6 +1006,24 @@ body {
 
 .settings-slider::-webkit-slider-thumb:hover {
   transform: scale(1.15);
+}
+
+/* Increment/Decrement buttons for sliders */
+.slider-btn {
+  background: var(--gray-200);
+  border: none;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: var(--transition);
+  margin: 0 4px;
+}
+
+.slider-btn:hover {
+  background: var(--gray-300);
 }
 
 .slider-value-badge {
