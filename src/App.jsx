@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import Skipper from './components/Skipper';
 import CamGuideView from './views/CamGuideView';
 import SmileCoachView from './views/SmileCoachView';
+import PlatformChecker from './components/PlatformChecker';
 import './App.css';
 
 function MainAppLayout() {
@@ -220,8 +221,10 @@ function MainAppLayout() {
 
 export default function App() {
   return (
-    <AppProvider>
-      <MainAppLayout />
-    </AppProvider>
+    <PlatformChecker>
+      <AppProvider>
+        <MainAppLayout />
+      </AppProvider>
+    </PlatformChecker>
   );
 }
