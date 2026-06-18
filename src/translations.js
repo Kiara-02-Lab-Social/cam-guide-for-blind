@@ -12,6 +12,7 @@ export const translations = {
     navLive: "Live check",
     navHistory: "History",
     navSettings: "Settings",
+    navPlatform: "Platform",
     legendLanguage: "Language Settings",
     legendAudio: "Audio Alerts Settings",
     legendVoice: "Voice Customization",
@@ -89,6 +90,7 @@ export const translations = {
     navAnnounceSmileCoach: "Navigated to Smile Coach page",
     navAnnounceHistory: "Navigated to History page",
     navAnnounceSettings: "Navigated to Settings page",
+    navAnnouncePlatform: "Navigated to Platform page",
 
     // Cam Guide TTS Phrases
     ttsCamStarted: "Camera started. Position yourself in front of the camera.",
@@ -193,6 +195,7 @@ export const translations = {
     navLive: "ライブチェック",
     navHistory: "履歴",
     navSettings: "設定",
+    navPlatform: "プラットフォーム",
     legendLanguage: "言語設定",
     legendAudio: "音声警告設定",
     legendVoice: "音声のカスタマイズ",
@@ -270,6 +273,7 @@ export const translations = {
     navAnnounceSmileCoach: "スマイルコーチページに移動しました",
     navAnnounceHistory: "履歴ページに移動しました",
     navAnnounceSettings: "設定ページに移動しました",
+    navAnnouncePlatform: "プラットフォームページに移動しました",
 
     // Cam Guide TTS Phrases
     ttsCamStarted: "カメラを起動しました。カメラの前に位置してください。",

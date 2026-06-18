@@ -1,110 +1,30 @@
-/* ─── PLATFORM CHECKER OVERLAY ────────────────────────────────────────────── */
+/* ─── PLATFORM CHECK PAGE VIEW ──────────────────────────────────────────────── */
 
-/* Full-screen blocking overlay */
-.pc-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  animation: pc-fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  /* Fallback BG colour if blobs aren't visible */
-  background: linear-gradient(135deg, #0d1117 0%, #1a0a2e 50%, #0d1117 100%);
-  overflow: hidden;
+.platform-check-view {
+  animation: fadeInView 0.4s ease-out;
 }
 
-.pc-overlay--exit {
-  animation: pc-fadeOut 0.4s ease-in forwards;
-}
-
-@keyframes pc-fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes pc-fadeOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-
-/* ─── ANIMATED BACKGROUND BLOBS ───────────────────────────────────────────── */
-.pc-bg {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.pc-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.35;
-}
-
-.pc-blob--1 {
-  width: 520px;
-  height: 520px;
-  background: radial-gradient(circle, #7c3aed 0%, #4f46e5 100%);
-  top: -160px;
-  left: -160px;
-  animation: pc-float1 14s ease-in-out infinite alternate;
-}
-
-.pc-blob--2 {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, #ec4899 0%, #8b5cf6 100%);
-  bottom: -140px;
-  right: -140px;
-  animation: pc-float2 18s ease-in-out infinite alternate;
-}
-
-.pc-blob--3 {
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, #06b6d4 0%, #3b82f6 100%);
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation: pc-float3 22s ease-in-out infinite alternate;
-}
-
-@keyframes pc-float1 {
-  from { transform: translate(0, 0) scale(1); }
-  to   { transform: translate(60px, 80px) scale(1.15); }
-}
-
-@keyframes pc-float2 {
-  from { transform: translate(0, 0) scale(1); }
-  to   { transform: translate(-50px, -60px) scale(1.1); }
-}
-
-@keyframes pc-float3 {
-  from { transform: translate(-50%, -50%) scale(0.9); }
-  to   { transform: translate(-50%, -50%) scale(1.2); }
+.platform-check-view .page-sub {
+  margin-bottom: 8px;
 }
 
 /* ─── CARD ─────────────────────────────────────────────────────────────────── */
 .pc-card {
-  position: relative;
-  z-index: 1;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.03);
   backdrop-filter: blur(28px) saturate(180%);
   -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 28px;
   padding: 48px 44px 40px;
   max-width: 520px;
   width: 100%;
   text-align: center;
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 32px 80px rgba(0, 0, 0, 0.5),
-    0 8px 24px rgba(0, 0, 0, 0.3);
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    0 32px 80px rgba(0, 0, 0, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.04);
   animation: pc-cardIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  align-self: center;
 }
 
 @keyframes pc-cardIn {
@@ -126,7 +46,7 @@
 .pc-icon-ring {
   position: absolute;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
   animation: pc-pulse 3s ease-in-out infinite;
 }
 
@@ -139,7 +59,7 @@
 .pc-icon-ring--inner {
   width: 68px;
   height: 68px;
-  border-color: rgba(124, 58, 237, 0.5);
+  border-color: rgba(124, 58, 237, 0.4);
   animation-delay: 0.5s;
 }
 
@@ -166,9 +86,9 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #dc2626;
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -178,12 +98,22 @@
   margin-bottom: 22px;
 }
 
+.pc-badge--success {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #16a34a;
+}
+
 .pc-badge-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: #ef4444;
   animation: pc-blink 1.4s ease-in-out infinite;
+}
+
+.pc-badge--success .pc-badge-dot {
+  background: #22c55e;
 }
 
 @keyframes pc-blink {
@@ -195,33 +125,28 @@
 .pc-title {
   font-size: clamp(26px, 5vw, 34px);
   font-weight: 800;
-  color: #ffffff;
+  color: #1a1a1a;
   line-height: 1.2;
   letter-spacing: -0.03em;
   margin-bottom: 16px;
-  /* Subtle gradient text */
-  background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.75) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .pc-desc {
   font-size: 14.5px;
-  color: rgba(255, 255, 255, 0.65);
+  color: #666;
   line-height: 1.65;
   margin-bottom: 0;
 }
 
 .pc-desc strong {
-  color: rgba(255, 255, 255, 0.9);
+  color: #1a1a1a;
   font-weight: 600;
 }
 
 /* ─── DIVIDER ───────────────────────────────────────────────────────────────── */
 .pc-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.08), transparent);
   margin: 28px 0;
 }
 
@@ -238,16 +163,16 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 14px;
   padding: 14px 18px;
   transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .pc-instruction-item:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 .pc-instruction-icon {
@@ -266,19 +191,19 @@
 .pc-instruction-text strong {
   font-size: 13px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.92);
+  color: #1a1a1a;
 }
 
 .pc-instruction-text span {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.48);
+  color: #888;
   line-height: 1.4;
 }
 
 /* ─── FOOTER NOTE ───────────────────────────────────────────────────────────── */
 .pc-footer-note {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.35);
+  color: #999;
   line-height: 1.5;
   padding-top: 4px;
 }

@@ -48,6 +48,8 @@ function MainAppLayout() {
             </div>
           </main>
         );
+      case 'platform-check':
+        return <PlatformChecker />;
       case 'settings':
         return (
           <main id="main-content" className="main settings-view">
@@ -216,10 +218,8 @@ function MainAppLayout() {
 
 export default function App() {
   return (
-    <PlatformChecker>
-      <AppProvider>
-        <MainAppLayout />
-      </AppProvider>
-    </PlatformChecker>
+    <AppProvider>
+      <MainAppLayout />
+    </AppProvider>
   );
 }
