@@ -26,8 +26,8 @@ export const translations = {
     
     // Cam Guide Specific
     sectionLive: "Live check",
-    pageHeading: "How's your camera looking?",
-    pageSub: "Audio feedback plays automatically. No screen needed.",
+    pageHeading: "How does it work?",
+    pageSub: "On-device AI analyzes your face and the results are communicated by VoiceOver or text-to-speech voice.",
     camLabel: "Live webcam",
     startBtn: "Start camera",
     startBtnSub: "Webcam access required",
@@ -209,8 +209,8 @@ export const translations = {
     
     // Cam Guide Specific
     sectionLive: "ライブチェック",
-    pageHeading: "カメラの映りはどうですか？",
-    pageSub: "音声フィードバックが自動再生されます。画面を見る必要はありません。",
+    pageHeading: "どうやって機能するの？",
+    pageSub: "端末上のAIが顔を分析し、結果はVoiceOverまたは音声合成で伝えられます。",
     camLabel: "ライブカメラ",
     startBtn: "カメラを開始",
     startBtnSub: "ウェブカメラへのアクセスが必要です",
