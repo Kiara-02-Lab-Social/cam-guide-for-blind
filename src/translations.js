@@ -84,6 +84,12 @@ export const translations = {
     streakMinute: "good minute this session",
     streakMinutes: "good minutes this session",
 
+    // Navigation announcements
+    navAnnounceCamGuide: "Navigated to Live Check page",
+    navAnnounceSmileCoach: "Navigated to Smile Coach page",
+    navAnnounceHistory: "Navigated to History page",
+    navAnnounceSettings: "Navigated to Settings page",
+
     // Cam Guide TTS Phrases
     ttsCamStarted: "Camera started. Position yourself in front of the camera.",
     ttsCamDenied: "Camera access denied. Please allow webcam access and reload.",
@@ -258,6 +264,12 @@ export const translations = {
     streakStart: "セッションを開始",
     streakMinute: "良好な分（今回のセッション）",
     streakMinutes: "良好な分（今回のセッション）",
+
+    // Navigation announcements
+    navAnnounceCamGuide: "ライブチェックページに移動しました",
+    navAnnounceSmileCoach: "スマイルコーチページに移動しました",
+    navAnnounceHistory: "履歴ページに移動しました",
+    navAnnounceSettings: "設定ページに移動しました",
 
     // Cam Guide TTS Phrases
     ttsCamStarted: "カメラを起動しました。カメラの前に位置してください。",

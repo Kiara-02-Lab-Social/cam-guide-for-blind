@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 
-export default function Sidebar({ streakNum = 0, streakSub = '' }) {
+export default function Sidebar() {
   const { activeTab, setActiveTab, t } = useApp();
 
   return (
@@ -52,11 +52,6 @@ export default function Sidebar({ streakNum = 0, streakSub = '' }) {
         <span>{t('navSettings')}</span>
       </button>
 
-      <div className="streak-box" aria-label={t('streakLabel')}>
-        <div className="streak-label">{t('streakLabel')}</div>
-        <div className="streak-num">{streakNum}</div>
-        <div className="streak-sub">{streakSub || t('streakStart')}</div>
-      </div>
     </nav>
   );
 }

@@ -7,7 +7,7 @@ import { drawPositionOverlay } from '../utils/drawing';
 import FeedbackCard from '../components/FeedbackCard';
 import Header from '../components/Header';
 
-export default function CamGuideView({ onStreakChange }) {
+export default function CamGuideView() {
   const { t, speak, activeTab, muted } = useApp();
 
   // Local state
@@ -25,13 +25,6 @@ export default function CamGuideView({ onStreakChange }) {
   const lastLightCheckRef = useRef(0);
   const goodTimerRef = useRef(null);
 
-  // Propagate streak upward to display in Sidebar
-  useEffect(() => {
-    const streakSubText = sessionGood === 0
-      ? t('streakStart')
-      : `${sessionGood} ${sessionGood === 1 ? t('streakMinute') : t('streakMinutes')}`;
-    onStreakChange(sessionGood, streakSubText);
-  }, [sessionGood, onStreakChange, t]);
 
   // Landmarks analysis callback
   const handleResults = useCallback((results) => {
@@ -305,6 +298,11 @@ export default function CamGuideView({ onStreakChange }) {
               {t('stop')}
             </button>
           )}
+
+          <div className="streak-box" aria-label={t('streakLabel')}>
+            <div className="streak-label">{t('streakLabel')}</div>
+            <div className="streak-num">{sessionGood}</div>
+          </div>
         </main>
       </div>
     </div>

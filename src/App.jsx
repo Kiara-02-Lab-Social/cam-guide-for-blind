@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import Sidebar from './components/Sidebar';
 import Skipper from './components/Skipper';
+import NavAnnouncer from './components/NavAnnouncer';
 import CamGuideView from './views/CamGuideView';
 import SmileCoachView from './views/SmileCoachView';
 import PlatformChecker from './components/PlatformChecker';
@@ -22,19 +23,12 @@ function MainAppLayout() {
     setTtsVolume, 
     t 
   } = useApp();
-  const [streakNum, setStreakNum] = useState(0);
   const [liveMessage, setLiveMessage] = useState('');
-  const [streakSub, setStreakSub] = useState('');
-
-  const handleStreakChange = (num, sub) => {
-    setStreakNum(num);
-    setStreakSub(sub);
-  };
 
   const renderActiveView = () => {
     switch (activeTab) {
       case 'cam-guide':
-        return <CamGuideView onStreakChange={handleStreakChange} />;
+        return <CamGuideView />;
       case 'smile-coach':
         return <SmileCoachView />;
       case 'history':
@@ -174,13 +168,14 @@ function MainAppLayout() {
           </main>
         );
       default:
-        return <CamGuideView onStreakChange={handleStreakChange} />;
+        return <CamGuideView />;
     }
   };
 
   return (
     <div className="app">
       <Skipper />
+      <NavAnnouncer />
       <div id="liveRegion" role="status" aria-live="assertive" aria-atomic="false" className="sr-only">{liveMessage}</div>
 
       {/* TOP FLOATING LOCALIZATION AND VOLUME CONTROLLER */}
@@ -212,7 +207,7 @@ function MainAppLayout() {
         </button>
       </header>
 
-      <Sidebar streakNum={streakNum} streakSub={streakSub} />
+      <Sidebar />
       
       {renderActiveView()}
     </div>
