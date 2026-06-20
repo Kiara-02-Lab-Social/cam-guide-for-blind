@@ -1,10 +1,49 @@
-import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef, useCallback } from 'react';
 import { translations } from '../translations';
+import { speakWithGemini, stopGeminiTTS, testGeminiConnection } from '../services/geminiTTS';
 
 const AppContext = createContext();
 
+function speakViaWebSpeech(text, language, rate, pitch, volume, setIsSpeakingFn, setSpeakingTextFn, silenceTimeoutRef) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language === 'ja' ? 'ja-JP' : 'en-US';
+    utterance.rate = rate;
+    utterance.pitch = pitch;
+    utterance.volume = volume;
+
+    utterance.onstart = () => {
+      setIsSpeakingFn(true);
+    };
+
+    utterance.onend = () => {
+      setIsSpeakingFn(false);
+    };
+
+    utterance.onerror = () => {
+      setIsSpeakingFn(false);
+    };
+
+    window.speechSynthesis.speak(utterance);
+
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+    }
+    silenceTimeoutRef.current = setTimeout(() => {
+      setIsSpeakingFn(false);
+    }, 4000);
+  } else {
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+    }
+    silenceTimeoutRef.current = setTimeout(() => {
+      setIsSpeakingFn(false);
+    }, 3000);
+  }
+}
+
 export function AppProvider({ children }) {
-  // Determine browser default language
   const getBrowserLanguage = () => {
     const browserLang = (navigator.language || 'en').toLowerCase();
     return browserLang.startsWith('ja') ? 'ja' : 'en';
@@ -12,13 +51,11 @@ export function AppProvider({ children }) {
 
   const [language, setLanguageState] = useState(getBrowserLanguage());
   const [muted, setMuted] = useState(false);
-  const [activeTab, setActiveTab] = useState('cam-guide'); // 'cam-guide' | 'smile-coach' | 'settings' | 'history'
-  
-  // TTS State
+  const [activeTab, setActiveTab] = useState('cam-guide');
+
   const [speakingText, setSpeakingText] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  // Customizable TTS Parameters
   const [ttsRate, setTtsRateState] = useState(() => {
     const saved = localStorage.getItem('ttsRate');
     const parsed = parseFloat(saved);
@@ -35,6 +72,15 @@ export function AppProvider({ children }) {
     return (saved !== null && !isNaN(parsed)) ? parsed : 1.0;
   });
 
+  const [ttsEngine, setTtsEngineState] = useState(() => {
+    return localStorage.getItem('ttsEngine') || 'web-speech';
+  });
+  const [geminiApiKey, setGeminiApiKeyState] = useState(() => {
+    return localStorage.getItem('geminiApiKey') || '';
+  });
+  const [geminiTtsStatus, setGeminiTtsStatus] = useState('idle');
+  const [geminiTtsError, setGeminiTtsError] = useState('');
+
   const setTtsRate = (val) => {
     setTtsRateState(val);
     localStorage.setItem('ttsRate', val.toString());
@@ -50,10 +96,19 @@ export function AppProvider({ children }) {
     localStorage.setItem('ttsVolume', val.toString());
   };
 
+  const setTtsEngine = (val) => {
+    setTtsEngineState(val);
+    localStorage.setItem('ttsEngine', val);
+  };
+
+  const setGeminiApiKey = (val) => {
+    setGeminiApiKeyState(val);
+    localStorage.setItem('geminiApiKey', val);
+  };
+
   const lastSpokenRef = useRef({});
   const silenceTimeoutRef = useRef(null);
 
-  // Set html document lang attribute
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
@@ -64,20 +119,17 @@ export function AppProvider({ children }) {
     }
   };
 
-  // Translation helper
   const t = (key) => {
     return translations[language]?.[key] || translations.en?.[key] || key;
   };
 
-  // Speaks text with debouncing
-  const speak = (text, force = false, debounceMs = 2500) => {
+  const speak = useCallback((text, force = false, debounceMs = 2500) => {
     if (muted) return;
     if (!text) return;
 
     const now = Date.now();
     const lastSpoken = lastSpokenRef.current[text] || 0;
 
-    // Debounce check
     if (!force && (now - lastSpoken < debounceMs)) {
       return;
     }
@@ -86,46 +138,44 @@ export function AppProvider({ children }) {
     setSpeakingText(text);
     setIsSpeaking(true);
 
+    stopGeminiTTS();
+
     if (silenceTimeoutRef.current) {
       clearTimeout(silenceTimeoutRef.current);
     }
 
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = language === 'ja' ? 'ja-JP' : 'en-US';
-      utterance.rate = ttsRate;
-      utterance.pitch = ttsPitch;
-      utterance.volume = ttsVolume;
+    const useGemini = ttsEngine === 'gemini' && geminiApiKey && geminiApiKey.trim().length > 0;
 
-      utterance.onstart = () => {
-        setIsSpeaking(true);
-      };
-
-      utterance.onend = () => {
-        setIsSpeaking(false);
-      };
-
-      utterance.onerror = () => {
-        setIsSpeaking(false);
-      };
-
-      window.speechSynthesis.speak(utterance);
-
-      // Fallback timeout to clear speaking state if events fail
-      silenceTimeoutRef.current = setTimeout(() => {
-        setIsSpeaking(false);
-      }, 4000);
+    if (useGemini) {
+      speakWithGemini(text, geminiApiKey.trim(), language, {
+        rate: ttsRate,
+        pitch: ttsPitch,
+        volume: ttsVolume
+      })
+        .then(() => {
+          setIsSpeaking(false);
+        })
+        .catch((err) => {
+          setIsSpeaking(false);
+          setGeminiTtsStatus('error');
+          setGeminiTtsError(err.message);
+        });
     } else {
-      // Mock speaking for unsupported browsers
-      silenceTimeoutRef.current = setTimeout(() => {
-        setIsSpeaking(false);
-      }, 3000);
+      speakViaWebSpeech(
+        text,
+        language,
+        ttsRate,
+        ttsPitch,
+        ttsVolume,
+        setIsSpeaking,
+        setSpeakingText,
+        silenceTimeoutRef
+      );
     }
-  };
+  }, [muted, ttsEngine, geminiApiKey, language, ttsRate, ttsPitch, ttsVolume]);
 
-  // Stop speaking
-  const stopSpeaking = () => {
+  const stopSpeaking = useCallback(() => {
+    stopGeminiTTS();
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
@@ -134,14 +184,12 @@ export function AppProvider({ children }) {
     if (silenceTimeoutRef.current) {
       clearTimeout(silenceTimeoutRef.current);
     }
-  };
+  }, []);
 
-  // Speak notification on mute toggle
-  const toggleMute = () => {
+  const toggleMute = useCallback(() => {
     setMuted(prev => {
       const nextMuted = !prev;
       if (!nextMuted) {
-        // We speak using next state, but since state hasn't updated yet, we speak manually
         if ('speechSynthesis' in window) {
           window.speechSynthesis.cancel();
           const msg = translations[language]?.ttsAudioOn || 'Audio feedback on';
@@ -157,14 +205,33 @@ export function AppProvider({ children }) {
       }
       return nextMuted;
     });
-  };
+  }, [language, ttsRate, ttsPitch, ttsVolume]);
 
-  // Cleanup speech synthesis on unmount
+  const testGeminiKey = useCallback(async () => {
+    if (!geminiApiKey || !geminiApiKey.trim()) {
+      setGeminiTtsStatus('error');
+      setGeminiTtsError('No API key provided.');
+      return;
+    }
+    setGeminiTtsStatus('testing');
+    setGeminiTtsError('');
+    try {
+      await testGeminiConnection(geminiApiKey.trim());
+      setGeminiTtsStatus('tested-ok');
+      setGeminiTtsError('');
+    } catch (err) {
+      setGeminiTtsStatus('error');
+      setGeminiTtsError(err.message);
+    }
+  }, [geminiApiKey]);
+
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (silenceTimeoutRef.current) {
         clearTimeout(silenceTimeoutRef.current);
       }
+      stopGeminiTTS();
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
@@ -191,7 +258,14 @@ export function AppProvider({ children }) {
         setTtsPitch,
         ttsVolume,
         setTtsVolume,
-        t
+        t,
+        ttsEngine,
+        setTtsEngine,
+        geminiApiKey,
+        setGeminiApiKey,
+        geminiTtsStatus,
+        geminiTtsError,
+        testGeminiKey
       }}
     >
       {children}

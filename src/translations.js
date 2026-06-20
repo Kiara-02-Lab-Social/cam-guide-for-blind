@@ -23,6 +23,22 @@ export const translations = {
     ttsPitchDesc: "Adjust the pitch (highness/lowness) of the voice.",
     ttsVolume: "Voice Volume",
     ttsVolumeDesc: "Adjust the volume level of the voice feedback.",
+
+    // TTS Engine
+    ttsEngine: "Text-to-Speech Engine",
+    ttsEngineBrowser: "Browser Speech",
+    ttsEngineGemini: "Gemini AI Voice",
+    ttsEngineDesc: "Choose between browser speech or Gemini AI voice.",
+    geminiApiKey: "Gemini API Key",
+    geminiApiKeyDesc: "Enter your Google Gemini API key. Get one at aistudio.google.com.",
+    geminiApiKeyPlaceholder: "Paste your API key here",
+    geminiApiKeySaved: "Key saved",
+    geminiApiKeySave: "Save",
+    geminiApiKeyTest: "Test",
+    geminiApiKeyTesting: "Testing...",
+    geminiTestSuccess: "Connection successful",
+    geminiTestFailed: "Connection failed",
+
     
     // Cam Guide Specific
     sectionLive: "Live check",
@@ -206,6 +222,22 @@ export const translations = {
     ttsPitchDesc: "音声のピッチ（高低）を調整します。",
     ttsVolume: "音声の音量",
     ttsVolumeDesc: "音声案内の音量レベルを調整します。",
+
+    // TTS Engine
+    ttsEngine: "音声合成エンジン",
+    ttsEngineBrowser: "ブラウザ音声",
+    ttsEngineGemini: "Gemini AI音声",
+    ttsEngineDesc: "ブラウザ音声またはGemini AI音声を選択します。",
+    geminiApiKey: "Gemini APIキー",
+    geminiApiKeyDesc: "Google Gemini APIキーを入力してください。aistudio.google.comで取得できます。",
+    geminiApiKeyPlaceholder: "APIキーを貼り付けてください",
+    geminiApiKeySaved: "キーを保存しました",
+    geminiApiKeySave: "保存",
+    geminiApiKeyTest: "テスト",
+    geminiApiKeyTesting: "テスト中...",
+    geminiTestSuccess: "接続成功",
+    geminiTestFailed: "接続失敗",
+
     
     // Cam Guide Specific
     sectionLive: "ライブチェック",

@@ -21,9 +21,28 @@ function MainAppLayout() {
     setTtsPitch, 
     ttsVolume, 
     setTtsVolume, 
-    t 
+    t,
+    ttsEngine,
+    setTtsEngine,
+    geminiApiKey,
+    setGeminiApiKey,
+    geminiTtsStatus,
+    geminiTtsError,
+    testGeminiKey
   } = useApp();
   const [liveMessage, setLiveMessage] = useState('');
+  const [localApiKey, setLocalApiKey] = useState(geminiApiKey);
+  const [keyJustSaved, setKeyJustSaved] = useState(false);
+
+  const handleSaveApiKey = () => {
+    setGeminiApiKey(localApiKey);
+    setKeyJustSaved(true);
+    setTimeout(() => setKeyJustSaved(false), 3000);
+  };
+
+  const handleTestApiKey = () => {
+    testGeminiKey();
+  };
 
   const renderActiveView = () => {
     switch (activeTab) {
@@ -100,6 +119,78 @@ function MainAppLayout() {
 
               <fieldset className="settings-group">
                 <legend className="settings-legend">{t('legendVoice')}</legend>
+
+                {/* TTS Engine Selector */}
+                <div className="setting-row">
+                  <div>
+                    <div className="setting-label-text">{t('ttsEngine')}</div>
+                    <div className="setting-desc-text">{t('ttsEngineDesc')}</div>
+                  </div>
+                  <div className="radio-group" role="radiogroup" aria-label={t('ttsEngine')}>
+                    <label className="radio-option">
+                      <input
+                        type="radio"
+                        name="ttsEngine"
+                        value="web-speech"
+                        checked={ttsEngine === 'web-speech'}
+                        onChange={() => setTtsEngine('web-speech')}
+                      />
+                      <span>{t('ttsEngineBrowser')}</span>
+                    </label>
+                    <label className="radio-option">
+                      <input
+                        type="radio"
+                        name="ttsEngine"
+                        value="gemini"
+                        checked={ttsEngine === 'gemini'}
+                        onChange={() => setTtsEngine('gemini')}
+                      />
+                      <span>{t('ttsEngineGemini')}</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Gemini API Key (visible only when Gemini is selected) */}
+                {ttsEngine === 'gemini' && (
+                  <div className="setting-row">
+                    <div>
+                      <div className="setting-label-text">{t('geminiApiKey')}</div>
+                      <div className="setting-desc-text">{t('geminiApiKeyDesc')}</div>
+                    </div>
+                    <div className="api-key-group">
+                      <div className="api-key-input-row">
+                        <input
+                          type="password"
+                          className="api-key-input"
+                          value={localApiKey}
+                          onChange={(e) => setLocalApiKey(e.target.value)}
+                          placeholder={t('geminiApiKeyPlaceholder')}
+                          aria-label={t('geminiApiKey')}
+                        />
+                        <button className="api-key-save-btn" onClick={handleSaveApiKey}>
+                          {t('geminiApiKeySave')}
+                        </button>
+                        <button
+                          className="api-key-test-btn"
+                          onClick={handleTestApiKey}
+                          disabled={geminiTtsStatus === 'testing' || !geminiApiKey}
+                        >
+                          {geminiTtsStatus === 'testing' ? t('geminiApiKeyTesting') : t('geminiApiKeyTest')}
+                        </button>
+                      </div>
+                      {geminiTtsStatus === 'tested-ok' && (
+                        <div className="api-key-status ok">✓ {t('geminiTestSuccess')}</div>
+                      )}
+                      {geminiTtsStatus === 'error' && geminiTtsError && (
+                        <div className="api-key-status err">✗ {geminiTtsError}</div>
+                      )}
+                      {keyJustSaved && geminiApiKey && (
+                        <div className="api-key-status ok">✓ {t('geminiApiKeySaved')}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="setting-row">
                   <div>
                     <div className="setting-label-text">{t('ttsSpeed')}</div>

@@ -1038,3 +1038,115 @@ body {
   display: inline-block;
 }
 
+/* ─── TTS ENGINE SELECTOR (Radio) ────────────────────────────────────────────── */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.radio-option:hover {
+  background: var(--gray-200);
+}
+
+.radio-option input[type="radio"] {
+  accent-color: var(--green);
+}
+
+/* ─── API KEY INPUT ──────────────────────────────────────────────────────────── */
+.api-key-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 220px;
+}
+
+.api-key-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.api-key-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--gray-300);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+  min-width: 160px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.api-key-input:focus {
+  border-color: var(--green);
+}
+
+.api-key-save-btn,
+.api-key-test-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--gray-300);
+  background: var(--white);
+  color: var(--gray-700);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.api-key-save-btn:hover,
+.api-key-test-btn:hover {
+  background: var(--gray-200);
+}
+
+.api-key-save-btn:active,
+.api-key-test-btn:active {
+  transform: scale(0.97);
+}
+
+.api-key-test-btn {
+  background: var(--green);
+  color: var(--white);
+  border-color: var(--green);
+}
+
+.api-key-test-btn:hover {
+  background: var(--green-dark);
+  border-color: var(--green-dark);
+}
+
+.api-key-test-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.api-key-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 0;
+}
+
+.api-key-status.ok {
+  color: var(--green-dark);
+}
+
+.api-key-status.err {
+  color: var(--red-dark);
+}
+
