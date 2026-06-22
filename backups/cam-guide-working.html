@@ -426,11 +426,11 @@ body {
 
 <h1 class="sr-only" data-i18n="srHeading">Cam Guide — Webcam position assistant for blind users on video calls</h1>
 
-<div class="app">
-  <header class="lang-toggle" role="group" aria-label="Language">
+<div class="app" role="main">
+  <div class="lang-toggle" role="group" aria-label="Language">
     <button class="lang-btn active" data-lang="en" aria-label="English">EN</button>
     <button class="lang-btn" data-lang="ja" aria-label="日本語">JP</button>
-  </header>
+  </div>
 
   <nav class="sidebar" aria-label="Main navigation">
     <div class="logo">
@@ -461,7 +461,7 @@ body {
     </div>
   </nav>
 
-  <main class="main" id="main-content">
+  <div class="main">
     <div>
       <div class="section-label" aria-hidden="true" data-i18n="sectionLive">Live check</div>
       <h2 class="page-title" data-i18n="pageHeading">How's your camera looking?</h2>
@@ -476,7 +476,7 @@ body {
         <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
         <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
       </div>
-      <div class="status-pill searching" id="statusPill" aria-live="off" data-i18n="statusWaiting">Waiting...</div>
+      <div class="status-pill searching" id="statusPill" aria-live="polite" data-i18n="statusWaiting">Waiting...</div>
       <div class="cam-label" aria-hidden="true" data-i18n="camLabel">Live webcam</div>
       <div class="start-btn" id="startBtn">
         <div class="start-btn-inner" role="button" tabindex="0" onclick="startCamera()" onkeydown="if(event.key==='Enter')startCamera()" data-i18n="startBtn">
@@ -486,7 +486,7 @@ body {
       </div>
     </div>
 
-    <div class="feedback-card idle" id="feedbackCard" role="alert" aria-live="off">
+    <div class="feedback-card idle" id="feedbackCard" role="alert" aria-live="assertive">
       <div class="feedback-icon idle" id="feedbackIcon">?</div>
       <div style="flex:1">
         <div class="feedback-title idle" id="feedbackTitle" data-i18n="fbWaiting">Waiting for camera...</div>
@@ -526,7 +526,7 @@ body {
     <button class="mute-btn" id="muteBtn" onclick="toggleMute()" aria-pressed="false" data-i18n="audioOn">
       Audio feedback: ON
     </button>
-  </main>
+  </div>
 </div>
 
 <script>
@@ -729,13 +729,6 @@ function setLanguage(lang) {
   }
 }
 
-function updateAriaLiveRegions() {
-  const statusPill = document.getElementById('statusPill');
-  const feedbackCard = document.getElementById('feedbackCard');
-  if (statusPill) statusPill.setAttribute('aria-live', muted ? 'polite' : 'off');
-  if (feedbackCard) feedbackCard.setAttribute('aria-live', muted ? 'assertive' : 'off');
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => setLanguage(btn.dataset.lang));
@@ -743,7 +736,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // default: browser locale → ja if Japanese, else en
   const browserLang = (navigator.language || 'en').toLowerCase();
   setLanguage(browserLang.startsWith('ja') ? 'ja' : 'en');
-  updateAriaLiveRegions();
 });
 
 // ─── SPEAK ───────────────────────────────────────────────────────────────────
@@ -777,7 +769,6 @@ function toggleMute() {
   btn.textContent = muted ? t('audioOff') : t('audioOn');
   btn.classList.toggle('muted', muted);
   btn.setAttribute('aria-pressed', muted);
-  updateAriaLiveRegions();
   if (!muted) speak(t('ttsAudioOn'));
 }
 

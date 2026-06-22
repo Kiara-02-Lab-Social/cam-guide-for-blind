@@ -1,0 +1,18 @@
+.skipper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: hsla(210, 50%, 20%, 0.9);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 4px 0;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  z-index: 1000;
+}
+.skipper:focus, .skipper:active {
+  transform: translateY(0);
+  outline: none;
+}
